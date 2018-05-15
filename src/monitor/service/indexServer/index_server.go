@@ -1,8 +1,5 @@
 package indexServer
 
-import (
-)
-
 type IndexServer struct {
 }
 
@@ -29,4 +26,8 @@ func (o *IndexServer) RemoteStart() bool {
 
 func (o *IndexServer) RemoteStop() bool {
 	return true
+}
+
+func (o *IndexServer) GetDescription() string {
+	return ""
 }

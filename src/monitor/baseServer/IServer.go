@@ -6,4 +6,5 @@ type IServer interface {
 	CheckStopCondition() bool
 	RemoteStart() bool
 	RemoteStop() bool
+	GetDescription() string
 }

@@ -4,12 +4,11 @@ import (
 	"fmt"
 	"mt/mtlog"
 	"flag"
-	"monitor/config"
+	"monitor/global"
 	"net/http"
+	"monitor/config"
 )
 
-var conf config.Conf
-var logger *mtlog.Logger
 
 func main()  {
 	// parse config
@@ -19,24 +18,26 @@ func main()  {
 		fmt.Println("conf is empty")
 		return
 	}
-	if conf.GetConf(*confPath) == nil {
+
+	global.Conf = &config.Conf{}
+	if global.Conf.GetConf(*confPath) == nil {
 		fmt.Println("parse config file error")
 		return
 	}
-	conf.Show()
+	global.Conf.Show()
 
 	// init logger
-	logger = mtlog.NewLogger(false, mtlog.DEVELOP, mtlog.INFO, conf.LogPath, conf.LogName, conf.LogFileSize, conf.LogFileCount)
-	if !logger.Start() {
+	global.Logger = mtlog.NewLogger(false, mtlog.DEVELOP, mtlog.INFO, global.Conf.LogPath, global.Conf.LogName, global.Conf.LogFileSize, global.Conf.LogFileCount)
+	if !global.Logger.Start() {
 		fmt.Println("logger.Start failed")
 	}
 
 	// start http server
-	err := http.ListenAndServe(conf.HttpListenPort, nil)
+	err := http.ListenAndServe(global.Conf.HttpListenPort, nil)
 	if err != nil {
-		logger.Error(err.Error())
+		global.Logger.Error(err.Error())
 	}
 
 	// stop logger
-	logger.Stop()
+	global.Logger.Stop()
 }
