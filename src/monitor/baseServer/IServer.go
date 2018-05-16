@@ -1,10 +1,12 @@
 package baseServer
 
 type IServer interface {
-	IsHealthy() bool
+	Init() bool
+	Stop() bool
+	IsHealthy() (bool, error)
 	CheckStartCondition() bool
 	CheckStopCondition() bool
 	RemoteStart() bool
 	RemoteStop() bool
-	GetDescription() string
+	GetDetail() string
 }

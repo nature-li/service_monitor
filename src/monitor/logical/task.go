@@ -5,7 +5,7 @@ import (
 	"sync"
 )
 
-type taskUnit struct {
+type TaskUnit struct {
 	id     int32
 	server baseServer.IServer
 	pause  int32
@@ -13,8 +13,8 @@ type taskUnit struct {
 	wg     *sync.WaitGroup
 }
 
-func newTaskUnit(id int32, server baseServer.IServer, pause int32) *taskUnit {
-	return &taskUnit{
+func NewTaskUnit(id int32, server baseServer.IServer, pause int32) *TaskUnit {
+	return &TaskUnit{
 		id:     id,
 		server: server,
 		pause:  pause,

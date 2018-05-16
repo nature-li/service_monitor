@@ -7,11 +7,12 @@ import (
 )
 
 type Conf struct {
-	LogPath            string `yaml:"log_path"`
-	LogName            string `yaml:"log_name"`
-	LogFileSize        int64  `yaml:"log_file_size"`
-	LogFileCount       int    `yaml:"log_file_count"`
-	HttpListenPort     string `yaml:"http_listen_port"`
+	LogPath        string `yaml:"log_path"`
+	LogName        string `yaml:"log_name"`
+	LogLevel       int    `yaml:"log_level"`
+	LogFileSize    int64  `yaml:"log_file_size"`
+	LogFileCount   int    `yaml:"log_file_count"`
+	HttpListenPort string `yaml:"http_listen_port"`
 }
 
 func (o *Conf) GetConf(path string) *Conf {
@@ -33,6 +34,7 @@ func (o *Conf) GetConf(path string) *Conf {
 func (o *Conf) Show() {
 	fmt.Println("log_path:", o.LogPath)
 	fmt.Println("log_name:", o.LogName)
+	fmt.Println("log_level:", o.LogLevel)
 	fmt.Println("log_file_size:", o.LogFileSize)
 	fmt.Println("log_file_count:", o.LogFileCount)
 	fmt.Println("http_listen_port:", o.HttpListenPort)

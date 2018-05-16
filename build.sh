@@ -6,5 +6,8 @@ set -x
 export GOPATH=$(pwd $(dirname $0))
 
 # build Monitor
-go build -ldflags "-X mtlog.CodeRoot=${GOPATH}" Monitor
-go install Monitor
+go build -ldflags "-X mt/mtlog.CodeRoot=${GOPATH}" monitor
+go install monitor
+
+go build -ldflags "-X mt/mtlog.CodeRoot=${GOPATH}" agent
+go install agent

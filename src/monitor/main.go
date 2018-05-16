@@ -7,6 +7,10 @@ import (
 	"monitor/global"
 	"net/http"
 	"monitor/config"
+	"net/rpc"
+	"net"
+	"monitor/service"
+	"monitor/logical"
 )
 
 
@@ -27,17 +31,32 @@ func main()  {
 	global.Conf.Show()
 
 	// init logger
-	global.Logger = mtlog.NewLogger(false, mtlog.DEVELOP, mtlog.INFO, global.Conf.LogPath, global.Conf.LogName, global.Conf.LogFileSize, global.Conf.LogFileCount)
+	global.Logger = mtlog.NewLogger(false, mtlog.DEVELOP, mtlog.Level(global.Conf.LogLevel), global.Conf.LogPath, global.Conf.LogName, global.Conf.LogFileSize, global.Conf.LogFileCount)
 	if !global.Logger.Start() {
 		fmt.Println("logger.Start failed")
 	}
+	defer global.Logger.Stop()
 
-	// start http server
-	err := http.ListenAndServe(global.Conf.HttpListenPort, nil)
+	// run logic
+	tasks, err := service.LoadServices()
+	if err != nil {
+		global.Logger.Error("load services failed")
+		return
+	}
+	jobs := logical.NewLogical()
+	jobs.SetServiceDict(tasks)
+	jobs.Start()
+	defer jobs.Stop()
+
+	// register function
+	//rpc.Register(nil)
+	rpc.HandleHTTP()
+	listener, err := net.Listen("tcp", global.Conf.HttpListenPort)
 	if err != nil {
 		global.Logger.Error(err.Error())
+		return
 	}
 
-	// stop logger
-	global.Logger.Stop()
+	global.Logger.Info("monitor server is starting...")
+	http.Serve(listener, nil)
 }
