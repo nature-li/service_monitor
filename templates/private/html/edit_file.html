@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="">
+    <meta name="author" content="">
+
+    <title>详细信息</title>
+
+    <!-- Bootstrap Core CSS -->
+    <link href="/templates/public/css/bootstrap.min.css" rel="stylesheet">
+    <link href="/templates/public/css/bootstrap-dialog/bootstrap-dialog.min.css">
+
+    <!-- Custom CSS -->
+    <link href="/templates/private/css/left/simple-sidebar.css" rel="stylesheet">
+    <link href="/templates/private/css/left/align.css" rel="stylesheet">
+    <link href="/templates/private/css/pages/public.css" rel="stylesheet">
+
+    <!-- Bootstrap Core JS -->
+    <script src="/templates/public/js/jquery.js"></script>
+    <script src="/templates/public/js/jquery.cookie.js"></script>
+    <script src="/templates/public/js/jquery.form.js"></script>
+    <script src="/templates/public/js/bootstrap.min.js"></script>
+    <script src="/templates/public/js/bootstrap-dialog/bootstrap-dialog.min.js"></script>
+</head>
+
+<body>
+
+<div id="wrapper" class="{{ .WrapperClass}}">
+    <!-- Sidebar -->
+    <div id="sidebar-wrapper">
+        <ul class="sidebar-nav">
+            <li class="sidebar-brand">
+                <span style="float: left;">
+                    <a href="#">
+                        <span class="glyphicon glyphicon-menu-hamburger side-bar-hidden" style="display: inline"
+                              aria-hidden="true">
+                        </span>
+                    </a>
+                </span>
+                <span style="float: right">
+                    <a href="#">
+                        <span id="lock-side-bar" class="glyphicon  {{ .PinLock}}" style="margin-right: 20px"
+                              aria-hidden="true">
+                        </span>
+                    </a>
+                </span>
+            </li>
+        {{if .DownloadRight}}
+            <li id="file_list_menu" class="side-bar-condition-hidden side-bar-menu" style="clear: both">
+                <a href="#">文件管理</a>
+            </li>
+        {{end}}
+        {{if .UserRight}}
+            <li id="user_list_menu" class="side-bar-condition-hidden side-bar-menu">
+                <a href="#">用户管理</a>
+            </li>
+        {{end}}
+        </ul>
+    </div>
+    <!-- /#sidebar-wrapper -->
+
+    <!-- Page Content -->
+    <nav class="navbar navbar-default">
+        <div class="container-fluid">
+            <!-- Brand and toggle get grouped for better mobile display -->
+            <div class="navbar-header">
+                <button type="button" class="navbar-toggle collapsed" data-toggle="collapse"
+                        data-target="#bs-example-navbar-collapse-1" aria-expanded="false">
+                    <span class="sr-only">Toggle navigation</span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                </button>
+                <a id="expand-side-bar" class="navbar-brand side-bar-show  {{ .HiddenClass}}" href="#">
+                    <span class="glyphicon glyphicon-menu-hamburger" aria-hidden="true"></span>
+                </a>
+                <span class="navbar-brand">详细信息</span>
+            </div>
+
+            <!-- Collect the nav links, forms, and other content for toggling -->
+            <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+                <ul class="nav navbar-nav">
+                </ul>
+                <ul class="nav navbar-nav navbar-right">
+                    <li class="dropdown">
+                        <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true"
+                           aria-expanded="false">{{ .LoginName}}<span class="caret"></span></a>
+                        <ul class="dropdown-menu">
+                            <li><a href="/user_logout">退出</a></li>
+                        </ul>
+                    </li>
+                </ul>
+            </div><!-- /.navbar-collapse -->
+        </div><!-- /.container-fluid -->
+    </nav>
+
+    <div id="page-content-wrapper">
+        <div class="container-fluid">
+            <div id="file_desc_info_rows">
+                <div class="row">
+                    <div class="col-lg-6">
+                        <table class="table table-bordered">
+                            <tbody>
+                            <tr>
+                                <td class="col-lg-2"><strong>文件编号</strong></td>
+                                <td id="edit_file_id" class="col-lg-10">{{ .Id}}</td>
+                            </tr>
+                            <tr>
+                                <td class="col-lg-2"><strong>文件名称</strong></td>
+                                <td class="col-lg-10"><a id="edit_file_name" href="{{ .FileUrl}}"
+                                                         download="{{ .FileName}}">{{ .FileName}} <span
+                                        class='glyphicon glyphicon-download-alt' aria-hidden='true'></span></a></td>
+                            </tr>
+                            <tr>
+                                <td class="col-lg-2"><strong>文件大小</strong></td>
+                                <td id="edit_file_readable_size" class="col-lg-10">{{ .RFileSize}}</td>
+                            </tr>
+                            <tr>
+                                <td class="col-lg-2"><strong>文件大小</strong></td>
+                                <td id="edit_file_size" class="col-lg-10">{{ .FileSize}}</td>
+                            </tr>
+                            <tr>
+                                <td class="col-lg-2"><strong>上传时间</strong></td>
+                                <td id="edit_create_time" class="col-lg-10">{{ .CreateTimeFmt}}</td>
+                            </tr>
+                            <tr>
+                                <td class="col-lg-2"><strong>文件md5</strong></td>
+                                <td id="edit_file_md5" class="col-lg-10">{{ .Md5}}</td>
+                            </tr>
+                            <tr>
+                                <td class="col-lg-2"><strong>上传者</strong></td>
+                                <td id="edit_file_uploader" class="col-lg-10">{{ .UserName}}</td>
+                            </tr>
+                            <tr>
+                                <td class="col-lg-2"><strong>文件版本</strong></td>
+                                <td id="edit_file_version" class="col-lg-10">{{ .Version}}</td>
+                            </tr>
+                            <tr>
+                                <td class="col-lg-2"><strong>参考链接</strong></td>
+                                <td id="td_edit_refer_link" class="col-lg-10"><a id="a_edit_refer_link" target="_blank" href="{{.ReferLink}}">{{.ReferLink}}</a></td>
+                            </tr>
+                            <tr>
+                                <td class="col-lg-2"><strong>描述信息</strong></td>
+                                <td id="edit_file_desc" class="col-lg-10">{{ .Desc}}</td>
+                            </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-lg-6">
+                        <button id="back_to_home" type="button" class="btn btn-primary btn-sm"
+                                style="font-size: 15px">
+                            返回列表页
+                        </button>
+                    {{if .ModifyRight}}
+                        <button id="edit_file_btn" type="button" class="btn btn-primary btn-sm"
+                                style="font-size: 15px; float: right">
+                            编辑
+                        </button>
+                        <button id="submit_file_btn" type="button" class="btn btn-primary btn-sm no-display"
+                                style="font-size: 15px; float: right">
+                            提交
+                        </button>
+                        <button id="delete_file_btn" type="button" class="btn btn-primary btn-sm"
+                                style="font-size: 15px; float: right; margin: 0 10px 0 0">
+                            删除
+                        </button>
+                    {{end}}
+                    </div>
+                </div>
+            </div>
+
+            <div id="back_to_home_tips_row" class="row no-display" style="text-align: center">
+                <div class="col-lg-12" style="display: inline-block">
+                    <div class="alert alert-success">删除成功, <span id="jump_after_seconds">1</span>秒后返回首页</div>
+                </div>
+            </div>
+
+            <div id="back_to_home_btn_row" class="row no-display" style="text-align: center">
+                <div class="col-lg-12" style="display: inline-block">
+                    <button id="back_to_home" type="button" class="btn btn-primary btn-lg" style="font-size: 15px">
+                        <span class="glyphicon glyphicon-home"></span>返回首页
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- /#page-content-wrapper -->
+</div>
+<script src="/templates/public/js/pages/public.js"></script>
+<script src="/templates/private/js/pages/toggle_sidebar.js"></script>
+<script src="/templates/private/js/pages/edit_file_page.js"></script>
+</body>
+
+</html>

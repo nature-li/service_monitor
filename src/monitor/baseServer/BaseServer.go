@@ -3,22 +3,25 @@ package baseServer
 import (
 	"net/rpc"
 	"monitor/global"
+	"rpcs"
 )
 
 type BaseServer struct {
-	AgentAddress string
+	*rpcs.ServiceInfo
+	*rpcs.ServiceType
 	Client       *rpc.Client
 	StartRely    []IServer
 	StopRely     []IServer
 }
 
 func NewBaseServer(agentAddress string) *BaseServer {
-	return &BaseServer{
-		AgentAddress: agentAddress,
+	server :=  &BaseServer{
 		Client:       nil,
 		StartRely:    make([]IServer, 0),
 		StopRely:     make([]IServer, 0),
 	}
+	server.AgentAddress = agentAddress
+	return server
 }
 
 func (o *BaseServer) AddStartReply(server IServer) {

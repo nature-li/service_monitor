@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="">
+    <meta name="author" content="">
+
+    <title>上传文件</title>
+
+    <!-- Bootstrap Core CSS -->
+    <link href="/templates/public/css/bootstrap.min.css" rel="stylesheet">
+    <link href="/templates/public/css/bootstrap-dialog/bootstrap-dialog.min.css">
+
+    <!-- Custom CSS -->
+    <link href="/templates/private/css/left/simple-sidebar.css" rel="stylesheet">
+    <link href="/templates/private/css/left/align.css" rel="stylesheet">
+    <link href="/templates/private/css/pages/public.css" rel="stylesheet">
+
+    <!-- Bootstrap Core JS -->
+    <script src="/templates/public/js/jquery.js"></script>
+    <script src="/templates/public/js/jquery.cookie.js"></script>
+    <script src="/templates/public/js/jquery.form.js"></script>
+    <script src="/templates/public/js/bootstrap.min.js"></script>
+    <script src="/templates/public/js/bootstrap-dialog/bootstrap-dialog.min.js"></script>
+</head>
+
+<body>
+
+<div id="wrapper" class="{{ .WrapperClass}}">
+    <!-- Sidebar -->
+    <div id="sidebar-wrapper">
+        <ul class="sidebar-nav">
+            <li class="sidebar-brand">
+                <span style="float: left;">
+                    <a href="#">
+                        <span class="glyphicon glyphicon-menu-hamburger side-bar-hidden" style="display: inline"
+                              aria-hidden="true">
+                        </span>
+                    </a>
+                </span>
+                <span style="float: right">
+                    <a href="#">
+                        <span id="lock-side-bar" class="glyphicon  {{ .PinLock}}" style="margin-right: 20px"
+                              aria-hidden="true">
+                        </span>
+                    </a>
+                </span>
+            </li>
+        {{if .DownloadRight}}
+            <li id="file_list_menu" class="side-bar-condition-hidden side-bar-menu" style="clear: both">
+                <a href="#">文件管理</a>
+            </li>
+        {{end}}
+        {{if .UserRight}}
+            <li id="user_list_menu" class="side-bar-condition-hidden side-bar-menu">
+                <a href="#">用户管理</a>
+            </li>
+        {{end}}
+        </ul>
+    </div>
+    <!-- /#sidebar-wrapper -->
+
+    <!-- Page Content -->
+    <nav class="navbar navbar-default">
+        <div class="container-fluid">
+            <!-- Brand and toggle get grouped for better mobile display -->
+            <div class="navbar-header">
+                <button type="button" class="navbar-toggle collapsed" data-toggle="collapse"
+                        data-target="#bs-example-navbar-collapse-1" aria-expanded="false">
+                    <span class="sr-only">Toggle navigation</span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                </button>
+                <a id="expand-side-bar" class="navbar-brand side-bar-show  {{ .HiddenClass}}" href="#">
+                    <span class="glyphicon glyphicon-menu-hamburger" aria-hidden="true"></span>
+                </a>
+                <span class="navbar-brand">文件管理</span>
+            </div>
+
+            <!-- Collect the nav links, forms, and other content for toggling -->
+            <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+                <ul class="nav navbar-nav">
+                {{if .DownloadRight}}
+                    <li class="nav-item">
+                        <a class="nav-link" href="/list_file">下载文件</a>
+                    </li>
+                {{end}}
+                {{if .UploadRight}}
+                    <li class="nav-item active">
+                        <a class="nav-link" href="/upload_file">上传文件</a>
+                    </li>
+                {{end}}
+                </ul>
+                <ul class="nav navbar-nav navbar-right">
+                    <li class="dropdown">
+                        <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true"
+                           aria-expanded="false">{{ .LoginName}}<span class="caret"></span></a>
+                        <ul class="dropdown-menu">
+                            <li><a href="/user_logout">退出</a></li>
+                        </ul>
+                    </li>
+                </ul>
+            </div><!-- /.navbar-collapse -->
+        </div><!-- /.container-fluid -->
+    </nav>
+
+    <div id="page-content-wrapper">
+        <div class="container-fluid">
+            <div class="row">
+                <div class="col-lg-12">
+                    <div id="upload_file_progress" class="progress no-display">
+                        <div id="upload_file_progress_bar" class="progress-bar" role="progressbar"
+                             aria-valuenow="60"
+                             aria-valuemin="0" aria-valuemax="100" style="width: 0%;">
+                            <span id="upload_file_process_percent">0%</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="upload_file_form" class="row">
+                <div class="col-lg-6">
+                    <div>
+                        <form action="/upload_file_api" method="post" enctype="multipart/form-data">
+                            <div class="form-group">
+                                <hr />
+                                <input id="max_file_limit" class="no-display" value="{{.UploadMaxFileSize}}"/>
+                                <div class="">
+                                <label class="btn btn-primary" for="choose_file_for_upload">
+                                    <input id="choose_file_for_upload" type="file" style="display:none"
+                                           name="uploadFile">
+                                    选择文件
+                                </label>
+                                <span class="label label-default" id="upload-file-info"></span>
+                                </div>
+                                <small id="emailHelp" class="form-text text-muted">
+                                    最大允许上传文件大小为: {{ .UploadMaxFileSizeStr}}M
+                                </small>
+                                <small id="check_file_size_label" class="form-text text-muted"></small>
+                                <hr />
+                            </div>
+                            <div class="form-group">
+                                <label for="version_input">版本</label>
+                                <input type="text" class="form-control" id="version_input"
+                                       placeholder="输入版本号" maxlength="32" name="file_version">
+                            </div>
+                            <div class="form-group">
+                                <label for="refer_link_input">链接</label>
+                                <input type="text" class="form-control" id="refer_link_input"
+                                       placeholder="输入链接全路径如: http://cf.meitu.com" maxlength="64"
+                                       name="file_refer_link">
+                            </div>
+                            <div class="form-group">
+                                <label for="file_desc_input">描述</label>
+                                <textarea class="form-control" id="file_desc_input" rows="10" maxlength="1024"
+                                          name="file_desc"></textarea>
+                                <small id="upload_file_error_label" class="form-text text-muted hidden-self">
+                                    <span style="color:red"></span>
+                                </small>
+                            </div>
+                            <button id="upload_file_btn" type="submit" class="btn btn-primary">上传</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="upload_file_form_again" class="row no-display" style="text-align: center">
+            <div class="col-lg-12" style="display: inline-block">
+                <div>
+                    <button id="back_to_home" type="button" class="btn btn-primary btn-lg" style="font-size: 15px">
+                        <span class="glyphicon glyphicon-home"></span>返回首页
+                    </button>
+                    <button id="upload_again_btn" type="button" class="btn btn-primary btn-lg"
+                            style="font-size: 15px">
+                        <span class="glyphicon glyphicon-cloud-upload"></span>再传一个
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- /#page-content-wrapper -->
+</div>
+<script src="/templates/public/js/pages/public.js"></script>
+<script src="/templates/private/js/pages/toggle_sidebar.js"></script>
+<script src="/templates/private/js/pages/upload_file_page.js"></script>
+</body>
+
+</html>

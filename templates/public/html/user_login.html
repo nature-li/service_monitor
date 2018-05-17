@@ -1,0 +1,67 @@
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>用户登录</title>
+    <link href="/templates/public/css/bootstrap.min.css" rel="stylesheet">
+    <link href="/templates/public/css/bootstrap-dialog/bootstrap-dialog.min.css">
+
+    <script src="/templates/public/js/jquery.js"></script>
+    <script src="/templates/public/js/jquery.cookie.js"></script>
+    <script src="/templates/public/js/bootstrap.min.js"></script>
+    <script src="/templates/public/js/bootstrap-dialog/bootstrap-dialog.min.js"></script>
+</head>
+<body>
+
+<div class="container">
+    <div id="loginbox" style="margin-top:60px;"
+         class="mainbox col-lg-4 col-md-6 col-md-offset-4 col-sm-8 col-sm-offset-4">
+    {{/*panel-info begin*/}}
+        <div class="panel panel-info">
+            <!--标题-->
+            <div class="panel-heading">
+                <div class="panel-title">请登录</div>
+            </div>
+
+        {{/*panel-body begin*/}}
+            <div style="padding-top:30px" class="panel-body">
+                <form id="loginform" class="form-horizontal" role="form">
+                {{/*账号*/}}
+                    <div style="margin-bottom: 25px" class="input-group">
+                        <span class="input-group-addon"><i class="glyphicon glyphicon-user"></i></span>
+                        <input id="login-user-email" type="text" class="form-control" name="username" value=""
+                               placeholder="email">
+                    </div>
+
+                {{/*密码*/}}
+                    <div style="margin-bottom: 25px" class="input-group">
+                        <span class="input-group-addon"><i class="glyphicon glyphicon-lock"></i></span>
+                        <input id="login-password" type="password" class="form-control" name="password"
+                               placeholder="password">
+                    </div>
+
+                    <div style="margin-top:10px" class="form-group">
+                        <div class="col-sm-12 controls">
+                            <input id="captcha_value" type="text" style="height: 40px" placeholder="验证码"/>
+                            <a id="a_for_captcha_img" href="#">
+                            <img id="captcha_img" style="float: right" src="data:image/png;base64,{{.Base64Img}}">
+                            </a>
+                        </div>
+                    </div>
+
+                {{/*登录*/}}
+                    <div style="margin-top:10px" class="form-group">
+                        <div class="col-sm-12 controls">
+                            <a id="btn-login" href="#" class="form-control btn btn-primary">登录</a>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        {{/*panel-body end*/}}
+        </div>
+    {{/*panel-info end*/}}
+    </div>
+</div>
+<script src="/templates/public/js/pages/public.js"></script>
+<script src="/templates/public/js/pages/user_login.js"></script>
+</body>
+</html>

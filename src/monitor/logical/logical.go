@@ -62,7 +62,7 @@ func (o *Logical) run(task *TaskUnit) bool {
 			break
 
 		case <-timer.C:
-			timer.Reset(time.Second * 5)
+			timer.Reset(time.Second * 1)
 		}
 	}
 	return true
