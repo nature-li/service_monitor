@@ -7,7 +7,8 @@ import (
 	"image/jpeg"
 	"encoding/base64"
 	"net/http"
-	"session"
+	"mt/session"
+	"platform/global"
 	"encoding/json"
 	"path/filepath"
 )
@@ -22,9 +23,9 @@ type captchaHandler struct {
 
 func newCaptchaHandler(s session.Session) *captchaHandler {
 	cat := captcha.New()
-	err := cat.AddFont(filepath.Join(config.publicTemplatePath, "fonts/comic.ttf"))
+	err := cat.AddFont(filepath.Join(global.Conf.PublicTemplatePath, "fonts/comic.ttf"))
 	if err != nil {
-		logger.Error(err.Error())
+		global.Logger.Error(err.Error())
 		return nil
 	}
 
@@ -42,7 +43,7 @@ func (o *captchaHandler) createCaptcha() (value, hex string, err error) {
 	buf := new(bytes.Buffer)
 	err = jpeg.Encode(buf, image, nil)
 	if err != nil {
-		logger.Error(err.Error())
+		global.Logger.Error(err.Error())
 		return "", "", err
 	}
 

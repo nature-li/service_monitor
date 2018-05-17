@@ -6,8 +6,9 @@ import (
 	"mt/mtlog"
 	"mt/session/cookie"
 	"flag"
-	"plat/global"
-	"plat/handler"
+	"platform/global"
+	"platform/handler"
+	"platform/config"
 )
 
 func main() {
@@ -19,6 +20,7 @@ func main() {
 		return
 	}
 
+	global.Conf = &config.Conf{}
 	if global.Conf.GetConf(*confPath) == nil {
 		fmt.Println("parse config file error")
 		return
@@ -38,45 +40,46 @@ func main() {
 	}
 	defer global.Logger.Stop()
 
-	// 公开模板文件
+	// public files in template
 	publicFs := http.FileServer(http.Dir(global.Conf.PublicTemplatePath))
 	http.Handle("/templates/public/", http.StripPrefix("/templates/public/", publicFs))
-	// 私有模板文件
+	// private files in template
 	http.HandleFunc("/templates/private/", handler.PrivateFileHandler)
-	// 图标
+	// icon
 	http.HandleFunc("/favicon.ico", handler.FaviconHandler)
 
-	// 404页面
+	// 404 page
 	http.HandleFunc("/not_found", handler.NotFoundHandler)
-	// 拒绝访问页面
+	// refuse page
 	http.HandleFunc("/not_allowed", handler.NotAllowHandler)
-	// 验证码
+	// captcha
 	http.HandleFunc("/captcha", handler.CaptchaAPIHandler)
 
-	// 登录页面
+	// login
 	if global.Conf.ServerLocalMode {
+		// login by login page
 		http.HandleFunc("/user_login", handler.UserLoginHandler)
 		http.HandleFunc("/user_login_api", handler.UserLoginAPIHandler)
 	} else {
-		// OA登录
+		// login by OA
 		http.HandleFunc("/user_login_auth", handler.UserLoginAuthHandler)
 		http.HandleFunc("/user_login_auth_api", handler.UserLoginAuthAPIHandler)
 	}
-	// 退出登录
+	// logout
 	http.HandleFunc("/user_logout", handler.UserLogoutHandler)
 
-	// 首页
+	// home page
 	http.HandleFunc("/", handler.ListUserHandler)
-	// 用户列表
+	// user list
 	http.HandleFunc("/list_user", handler.ListUserHandler)
 
-	// 用户列表
+	// user list api
 	http.HandleFunc("/list_user_api", handler.ListUserAPIHandler)
-	// 编辑用户
+	// edit list api
 	http.HandleFunc("/edit_user_api", handler.EditUserAPIHandler)
-	// 添加用户
+	// add user
 	http.HandleFunc("/add_user_api", handler.AddUserAPIHandler)
-	// 删除用户
+	// delete user
 	http.HandleFunc("/del_user_api", handler.DelUserAPIHandler)
 
 

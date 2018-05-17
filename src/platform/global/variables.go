@@ -3,7 +3,7 @@ package global
 import (
 	"mt/mtlog"
 	"mt/session"
-	"plat/config"
+	"platform/config"
 )
 
 var Logger *mtlog.Logger = nil

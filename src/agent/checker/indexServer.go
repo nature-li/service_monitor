@@ -2,8 +2,6 @@ package checker
 
 import (
 	"rpcs"
-	"agent/global"
-	"reflect"
 )
 
 type IndexServer struct {

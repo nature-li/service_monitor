@@ -19,8 +19,6 @@ type Conf struct {
 	HttpSessionId      string `yaml:"http_session_id"`
 	HttpAccessTime     string `yaml:"http_access_time"`
 	HttpSessionTimeout int64  `yaml:"http_session_timeout"`
-	UploadDataPath     string `yaml:"upload_data_path"`
-	UploadMaxSize      int64  `yaml:"upload_max_size"`
 	OauthAppId         string `yaml:"oauth_app_id"`
 	OauthAppSecret     string `yaml:"oauth_app_secret"`
 	OauthUserUrl       string `yaml:"oauth_user_url"`
@@ -67,8 +65,6 @@ func (o *Conf) Show() {
 	fmt.Println("http_session_id:", o.HttpSessionId)
 	fmt.Println("http_access_time:", o.HttpAccessTime)
 	fmt.Println("http_session_timeout:", o.HttpSessionTimeout)
-	fmt.Println("upload_data_path:", o.UploadDataPath)
-	fmt.Println("upload_max_size:", o.UploadMaxSize)
 	fmt.Println("oauth_app_id:", o.OauthAppId)
 	fmt.Println("oauth_app_secret:", o.OauthAppSecret)
 	fmt.Println("oauth_redirect_url:", o.OauthRedirectUrl)

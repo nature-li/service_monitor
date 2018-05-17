@@ -4,7 +4,7 @@ import (
 	"net/http"
 	"path/filepath"
 	"html/template"
-	"plat/global"
+	"platform/global"
 )
 
 func ListUserHandler(w http.ResponseWriter, r *http.Request)  {

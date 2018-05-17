@@ -6,7 +6,9 @@ import (
 	"io/ioutil"
 	"encoding/json"
 	"database/sql"
-	"session"
+	"mt/session"
+	"platform/global"
+	"fmt"
 )
 
 type userLoginAuthAPI struct {
@@ -17,75 +19,75 @@ type userLoginAuthAPI struct {
 }
 
 func (o *userLoginAuthAPI)handle(w http.ResponseWriter, r *http.Request) {
-	s := manager.SessionStart(w, r)
+	s := global.Manager.SessionStart(w, r)
 
 	err := r.ParseForm()
 	if err != nil {
-		logger.Error(err.Error())
+		global.Logger.Error(err.Error())
 		return
 	}
 
 	codeFromAuth := r.Form.Get("code")
 	if codeFromAuth == "" {
-		logger.Error("code_from_auth is empty")
-		userLoginAuthHandler(w, r)
+		global.Logger.Error("code_from_auth is empty")
+		UserLoginAuthHandler(w, r)
 		return
 	}
 
 	formData := url.Values{
 		"code":         {codeFromAuth},
-		"appid":        {config.OauthAppId},
-		"appsecret":    {config.OauthAppSecret},
-		"redirect_uri": {config.OauthRedirectUrl},
+		"appid":        {global.Conf.OauthAppId},
+		"appsecret":    {global.Conf.OauthAppSecret},
+		"redirect_uri": {global.Conf.OauthRedirectUrl},
 		"grant_type":   {"auth_code"},
 	}
-	resp, err := http.PostForm(config.OauthTokenUrl, formData)
+	resp, err := http.PostForm(global.Conf.OauthTokenUrl, formData)
 	if err != nil {
-		logger.Error(err.Error())
-		userLoginAuthHandler(w, r)
+		global.Logger.Error(err.Error())
+		UserLoginAuthHandler(w, r)
 		return
 	}
 	defer resp.Body.Close()
 
 	body, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
-		logger.Error(err.Error())
-		userLoginAuthHandler(w, r)
+		global.Logger.Error(err.Error())
+		UserLoginAuthHandler(w, r)
 		return
 	}
-	logger.Info(string(body))
+	global.Logger.Info(string(body))
 
 	err = json.Unmarshal(body, &o)
 	if err != nil {
-		logger.Error(err.Error())
-		userLoginAuthHandler(w, r)
+		global.Logger.Error(err.Error())
+		UserLoginAuthHandler(w, r)
 		return
 	}
 
 	formValue := url.Values {
 		"access_token": {o.AccessToken},
-		"appid": {config.OauthAppId},
+		"appid": {global.Conf.OauthAppId},
 		"openid": {o.OpenId},
 	}
-	userResp, err := http.PostForm(config.OauthUserUrl, formValue)
+	userResp, err := http.PostForm(global.Conf.OauthUserUrl, formValue)
 	if err != nil {
-		logger.Error(err.Error())
-		userLoginAuthHandler(w, r)
+		global.Logger.Error(err.Error())
+		UserLoginAuthHandler(w, r)
 		return
 	}
 	userBody, err := ioutil.ReadAll(userResp.Body)
 	if err != nil {
-		logger.Error(err.Error())
-		userLoginAuthHandler(w, r)
+		global.Logger.Error(err.Error())
+		UserLoginAuthHandler(w, r)
 		return
 	}
-	logger.Info(string(userBody))
+	global.Logger.Info(string(userBody))
 
 	var userJson map[string]interface{}
 	err = json.Unmarshal(userBody, &userJson)
 	if err != nil {
-		logger.Error(err.Error())
-		userLoginAuthHandler(w, r)
+		global.Logger.Error(err.Error())
+		UserLoginAuthHandler(w, r)
 		return
 	}
 
@@ -104,8 +106,8 @@ func (o *userLoginAuthAPI)handle(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if authUserEmail == "" {
-		logger.Error("get email empty")
-		userLoginAuthHandler(w, r)
+		global.Logger.Error("get email empty")
+		UserLoginAuthHandler(w, r)
 		return
 	}
 
@@ -127,18 +129,18 @@ func (o *userLoginAuthAPI) getUserRight(email string) (userRight string, ok bool
 	userRight = ""
 	ok = false
 
-	db, err := sql.Open("sqlite3", config.SqliteDbPath)
+	connectStr := fmt.Sprintf("%s:%s@/%s", global.Conf.MysqlUser, global.Conf.MysqlPwd, global.Conf.MysqlDbName)
+	db, err := sql.Open("mysql", connectStr)
 	if err != nil {
-		logger.Error(err.Error())
+		global.Logger.Error(err.Error())
 		return
 	}
 	defer db.Close()
-	db.Exec("PRAGMA busy_timeout=30000")
 
 	querySql := "SELECT user_right FROM user_list WHERE user_email = ?"
 	rows, err := db.Query(querySql, email)
 	if err != nil {
-		logger.Error(err.Error())
+		global.Logger.Error(err.Error())
 		return
 	}
 	defer rows.Close()
@@ -146,7 +148,7 @@ func (o *userLoginAuthAPI) getUserRight(email string) (userRight string, ok bool
 	for rows.Next() {
 		err := rows.Scan(&userRight)
 		if err != nil {
-			logger.Error(err.Error())
+			global.Logger.Error(err.Error())
 			return
 		}
 

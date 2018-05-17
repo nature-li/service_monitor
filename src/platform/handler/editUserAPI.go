@@ -1,11 +1,13 @@
 package handler
 
 import (
-	"session"
+	"mt/session"
 	"net/http"
 	"encoding/json"
 	"database/sql"
 	"strconv"
+	"platform/global"
+	"fmt"
 )
 
 type editUserAPI struct {
@@ -19,31 +21,22 @@ type editUserAPI struct {
 func (o *editUserAPI) handle(w http.ResponseWriter, r *http.Request) {
 	err := r.ParseForm()
 	if err != nil {
-		logger.Error(err.Error())
+		global.Logger.Error(err.Error())
 		return
 	}
 
 	userId := r.Form.Get("user_id")
-	downloadRight := r.Form.Get("download_right")
-	uploadRight := r.Form.Get("upload_right")
 	managerRight := r.Form.Get("manager_right")
 
 	var userRight int64 = 0
-	if downloadRight == "true" {
-		userRight |= DOWNLOAD_RIGHT
-	}
-
-	if uploadRight == "true" {
-		userRight |= UPLOAD_RIGHT
-	}
-
 	if managerRight == "true" {
 		userRight |= MANAGER_RIGHT
 	}
 
-	db, err := sql.Open("sqlite3", config.SqliteDbPath)
+	connectStr := fmt.Sprintf("%s:%s@/%s", global.Conf.MysqlUser, global.Conf.MysqlPwd, global.Conf.MysqlDbName)
+	db, err := sql.Open("mysql", connectStr)
 	if err != nil {
-		logger.Error(err.Error())
+		global.Logger.Error(err.Error())
 		o.render(w, false, "OPEN_DB_ERROR", nil)
 	}
 	defer db.Close()
@@ -69,7 +62,7 @@ func (o *editUserAPI) render(w http.ResponseWriter, success bool, msg string, co
 
 	result, err := json.Marshal(o)
 	if err != nil {
-		logger.Error(err.Error())
+		global.Logger.Error(err.Error())
 		return
 	}
 
@@ -80,13 +73,13 @@ func (o *editUserAPI) updateRight(db *sql.DB, userId string, userRight int64) bo
 	querySQL := "UPDATE user_list SET user_right = ? WHERE id = ?"
 	result, err := db.Exec(querySQL, userRight, userId)
 	if err != nil {
-		logger.Error(err.Error())
+		global.Logger.Error(err.Error())
 		return false
 	}
 
 	rows, err := result.RowsAffected()
 	if err != nil {
-		logger.Error(err.Error())
+		global.Logger.Error(err.Error())
 		return false
 	}
 
@@ -101,7 +94,7 @@ func (o *editUserAPI) queryUser(db *sql.DB, userId string) *jsonListUserAPI {
 	querySQL := "SELECT id,user_email,user_right,create_time FROM user_list WHERE id=?"
 	rows, err := db.Query(querySQL, userId)
 	if err != nil {
-		logger.Error(err.Error())
+		global.Logger.Error(err.Error())
 		return nil
 	}
 	defer rows.Close()
@@ -114,24 +107,14 @@ func (o *editUserAPI) queryUser(db *sql.DB, userId string) *jsonListUserAPI {
 
 		err = rows.Scan(&id, &userEmail, &userRight, &when)
 		if err != nil {
-			logger.Error(err.Error())
+			global.Logger.Error(err.Error())
 			return nil
 		}
 
 		digitRight, err := strconv.ParseInt(userRight, 10, 64)
 		if err != nil {
-			logger.Error(err.Error())
+			global.Logger.Error(err.Error())
 			return nil
-		}
-
-		downloadRight := false
-		if (digitRight & DOWNLOAD_RIGHT) != 0 {
-			downloadRight = true
-		}
-
-		uploadRight := false
-		if (digitRight & UPLOAD_RIGHT) != 0 {
-			uploadRight = true
 		}
 
 		managerRight := false
@@ -142,8 +125,6 @@ func (o *editUserAPI) queryUser(db *sql.DB, userId string) *jsonListUserAPI {
 		user := &jsonListUserAPI{
 			Id:            id,
 			UserEmail:     userEmail,
-			DownloadRight: downloadRight,
-			UploadRight:   uploadRight,
 			ManagerRight:  managerRight,
 		}
 		user.setCreateTime(when)

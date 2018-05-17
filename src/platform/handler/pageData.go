@@ -2,8 +2,9 @@ package handler
 
 import (
 	"net/http"
-	"session"
+	"mt/session"
 	"strconv"
+	"platform/global"
 )
 
 type pageData struct {
@@ -56,18 +57,8 @@ func newPageData(w http.ResponseWriter, r *http.Request, s session.Session) *pag
 
 	digitRight, err := strconv.ParseInt(userRight, 10, 64)
 	if err != nil {
-		logger.Error(err.Error())
+		global.Logger.Error(err.Error())
 		digitRight = 0
-	}
-
-	downloadRight := false
-	if (digitRight & DOWNLOAD_RIGHT) != 0 {
-		downloadRight = true
-	}
-
-	uploadRight := false
-	if (digitRight & UPLOAD_RIGHT) != 0 {
-		uploadRight = true
 	}
 
 	managerRight := false
@@ -82,10 +73,6 @@ func newPageData(w http.ResponseWriter, r *http.Request, s session.Session) *pag
 		WrapperClass:         wrapperClass,
 		PinLock:              pinLock,
 		HiddenClass:          hiddenClass,
-		UploadMaxFileSize:    config.UploadMaxSize,
-		UploadMaxFileSizeStr: config.maxUploadSizeStr,
-		DownloadRight:        downloadRight,
-		UploadRight:          uploadRight,
 		UserRight:            managerRight,
 		ModifyRight:          modifyRight}
 }

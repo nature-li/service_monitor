@@ -6,7 +6,7 @@ import (
 	"net/url"
 	"path/filepath"
 	"mt/session"
-	"plat/global"
+	"platform/global"
 	"strconv"
 )
 

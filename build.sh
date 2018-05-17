@@ -11,3 +11,6 @@ go install monitor
 
 go build -ldflags "-X mt/mtlog.CodeRoot=${GOPATH}" agent
 go install agent
+
+go build -ldflags "-X mt/mtlog.CodeRoot=${GOPATH}" platform
+go install platform

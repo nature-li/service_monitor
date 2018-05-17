@@ -5,8 +5,9 @@ import (
 	"encoding/json"
 	"database/sql"
 	"fmt"
-	"session"
+	"mt/session"
 	"strings"
+	"platform/global"
 )
 
 type delUserAPI struct {
@@ -19,7 +20,7 @@ type delUserAPI struct {
 func (o *delUserAPI) handle(w http.ResponseWriter, r *http.Request) {
 	err := r.ParseForm()
 	if err != nil {
-		logger.Error(err.Error())
+		global.Logger.Error(err.Error())
 		o.render(w, false, "PARSE_FORM_ERROR")
 		return
 	}
@@ -30,9 +31,10 @@ func (o *delUserAPI) handle(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	db, err := sql.Open("sqlite3", config.SqliteDbPath)
+	connectStr := fmt.Sprintf("%s:%s@/%s", global.Conf.MysqlUser, global.Conf.MysqlPwd, global.Conf.MysqlDbName)
+	db, err := sql.Open("mysql", connectStr)
 	if err != nil {
-		logger.Error(err.Error())
+		global.Logger.Error(err.Error())
 		o.render(w, false, "OPEN_DB_FAILED")
 	}
 	defer db.Close()
@@ -51,7 +53,7 @@ func (o *delUserAPI) render(w http.ResponseWriter, success bool, msg string) {
 
 	result, err := json.Marshal(o)
 	if err != nil {
-		logger.Error(err.Error())
+		global.Logger.Error(err.Error())
 		return
 	}
 
@@ -62,7 +64,7 @@ func (o *delUserAPI) delUser(db *sql.DB, userIdList string) bool {
 	idList := strings.Split(userIdList, ",")
 	sqlPart := strings.Join(idList, ",")
 	if len(sqlPart) == 0 {
-		logger.Error("user_id_list is empty")
+		global.Logger.Error("user_id_list is empty")
 		return false
 	}
 	if len(sqlPart) > 0 {
@@ -70,18 +72,18 @@ func (o *delUserAPI) delUser(db *sql.DB, userIdList string) bool {
 	}
 
 	querySQL := "DELETE FROM user_list WHERE id in (" + sqlPart + ")"
-	logger.Info(querySQL)
+	global.Logger.Info(querySQL)
 	results, err := db.Exec(querySQL)
 	if err != nil {
-		logger.Error(err.Error())
+		global.Logger.Error(err.Error())
 		return false
 	}
 
 	affectRows, err := results.RowsAffected()
 	if err != nil {
-		logger.Error(err.Error())
+		global.Logger.Error(err.Error())
 		return false
 	}
-	logger.Info(fmt.Sprintf("delete rows: %v", affectRows))
+	global.Logger.Info(fmt.Sprintf("delete rows: %v", affectRows))
 	return true
 }
