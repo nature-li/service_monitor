@@ -8,6 +8,7 @@ import (
 	"fmt"
 	"mt/session"
 	"platform/global"
+	"net/url"
 )
 
 type addUserAPI struct {
@@ -39,7 +40,13 @@ func (o *addUserAPI) handle(w http.ResponseWriter, r *http.Request) {
 		userRight |= MANAGER_RIGHT
 	}
 
-	connectStr := fmt.Sprintf("%s:%s@/%s", global.Conf.MysqlUser, global.Conf.MysqlPwd, global.Conf.MysqlDbName)
+	connectStr := fmt.Sprintf("%s:%s@tcp(%s:%s)/%s?charset=utf8&loc=%s&parseTime=true",
+		global.Conf.MysqlUser,
+		global.Conf.MysqlPwd,
+		global.Conf.MysqlAddress,
+		global.Conf.MysqlPort,
+		global.Conf.MysqlDbName,
+		url.QueryEscape("Asia/Shanghai"))
 	db, err := sql.Open("mysql", connectStr)
 	if err != nil {
 		global.Logger.Error(err.Error())
@@ -68,8 +75,8 @@ func (o *addUserAPI) render(w http.ResponseWriter, success bool, msg string) {
 }
 
 func (o *addUserAPI) addUser(db *sql.DB, userEmail string, userRight int64) bool {
-	now := time.Now().Unix()
-	querySQL := "INSERT INTO user_list(user_email, user_right, create_time) VALUES (?,?,?)"
+	now := time.Now().Local()
+	querySQL := "INSERT INTO users(user_email, user_right, create_time) VALUES (?,?,?)"
 	results, err := db.Exec(querySQL, userEmail, userRight, now)
 	if err != nil {
 		global.Logger.Error(err.Error())

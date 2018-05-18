@@ -12,6 +12,7 @@ import (
 	"platform/global"
 	_ "github.com/go-sql-driver/mysql"
 	"fmt"
+	"net/url"
 )
 
 type userLoginAPI struct {
@@ -59,7 +60,13 @@ func (o *userLoginAPI) handle(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	connectStr := fmt.Sprintf("%s:%s@/%s", global.Conf.MysqlUser, global.Conf.MysqlPwd, global.Conf.MysqlDbName)
+	connectStr := fmt.Sprintf("%s:%s@tcp(%s:%s)/%s?charset=utf8&loc=%s&parseTime=true",
+		global.Conf.MysqlUser,
+		global.Conf.MysqlPwd,
+		global.Conf.MysqlAddress,
+		global.Conf.MysqlPort,
+		global.Conf.MysqlDbName,
+		url.QueryEscape("Asia/Shanghai"))
 	o.db, err = sql.Open("mysql", connectStr)
 	if err != nil {
 		global.Logger.Error(err.Error())
@@ -97,7 +104,7 @@ func (o *userLoginAPI) render(w http.ResponseWriter, success bool, desc string) 
 func (o *userLoginAPI) checkPassword(email, password string) (success bool, message string) {
 	md5Value := md5.Sum([]byte(password))
 	hexMd5 := hex.EncodeToString(md5Value[:])
-	querySql := "SELECT user_name,user_email,user_pwd,user_right FROM user_list WHERE user_email=? and user_type=1"
+	querySql := "SELECT user_name,user_email,user_pwd,user_right FROM users WHERE user_email=? and user_type=1"
 	rows, err := o.db.Query(querySql, email)
 	if err != nil {
 		global.Logger.Error(err.Error())

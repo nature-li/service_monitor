@@ -14,16 +14,7 @@ type pageData struct {
 	HiddenClass          string
 	UploadMaxFileSize    int64
 	UploadMaxFileSizeStr string
-	DownloadRight        bool
-	UploadRight          bool
-	ModifyRight          bool
 	UserRight            bool
-}
-
-func (o *pageData)reCalcModifyRight(loginEmail, uploaderEmail string) {
-	if (loginEmail != "") && (loginEmail == uploaderEmail) {
-		o.ModifyRight = true
-	}
 }
 
 func newPageData(w http.ResponseWriter, r *http.Request, s session.Session) *pageData {
@@ -55,17 +46,19 @@ func newPageData(w http.ResponseWriter, r *http.Request, s session.Session) *pag
 		}
 	}
 
-	digitRight, err := strconv.ParseInt(userRight, 10, 64)
-	if err != nil {
-		global.Logger.Error(err.Error())
-		digitRight = 0
+	var digitRight int64 = 0
+	var err error = nil
+	if len(userRight) != 0 {
+		digitRight, err = strconv.ParseInt(userRight, 10, 64)
+		if err != nil {
+			global.Logger.Error(err.Error())
+			digitRight = 0
+		}
 	}
 
 	managerRight := false
-	modifyRight := false
 	if (digitRight & MANAGER_RIGHT) != 0 {
 		managerRight = true
-		modifyRight = true
 	}
 
 	return &pageData{
@@ -73,6 +66,5 @@ func newPageData(w http.ResponseWriter, r *http.Request, s session.Session) *pag
 		WrapperClass:         wrapperClass,
 		PinLock:              pinLock,
 		HiddenClass:          hiddenClass,
-		UserRight:            managerRight,
-		ModifyRight:          modifyRight}
+		UserRight:            managerRight}
 }

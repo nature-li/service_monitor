@@ -8,6 +8,8 @@ import (
 	"strconv"
 	"platform/global"
 	"fmt"
+	"time"
+	"net/url"
 )
 
 type editUserAPI struct {
@@ -33,14 +35,19 @@ func (o *editUserAPI) handle(w http.ResponseWriter, r *http.Request) {
 		userRight |= MANAGER_RIGHT
 	}
 
-	connectStr := fmt.Sprintf("%s:%s@/%s", global.Conf.MysqlUser, global.Conf.MysqlPwd, global.Conf.MysqlDbName)
+	connectStr := fmt.Sprintf("%s:%s@tcp(%s:%s)/%s?charset=utf8&loc=%s&parseTime=true",
+		global.Conf.MysqlUser,
+		global.Conf.MysqlPwd,
+		global.Conf.MysqlAddress,
+		global.Conf.MysqlPort,
+		global.Conf.MysqlDbName,
+		url.QueryEscape("Asia/Shanghai"))
 	db, err := sql.Open("mysql", connectStr)
 	if err != nil {
 		global.Logger.Error(err.Error())
 		o.render(w, false, "OPEN_DB_ERROR", nil)
 	}
 	defer db.Close()
-	db.Exec("PRAGMA busy_timeout=30000")
 
 	if !o.updateRight(db, userId, int64(userRight)) {
 		o.render(w, false, "UPDATE_DB_FAILED", nil)
@@ -70,28 +77,25 @@ func (o *editUserAPI) render(w http.ResponseWriter, success bool, msg string, co
 }
 
 func (o *editUserAPI) updateRight(db *sql.DB, userId string, userRight int64) bool {
-	querySQL := "UPDATE user_list SET user_right = ? WHERE id = ?"
+	querySQL := "UPDATE users SET user_right = ? WHERE id = ?"
+	global.Logger.Info(querySQL)
 	result, err := db.Exec(querySQL, userRight, userId)
 	if err != nil {
 		global.Logger.Error(err.Error())
 		return false
 	}
 
-	rows, err := result.RowsAffected()
+	_, err = result.RowsAffected()
 	if err != nil {
 		global.Logger.Error(err.Error())
 		return false
 	}
 
-	if rows == 1 {
-		return true
-	}
-
-	return false
+	return true
 }
 
 func (o *editUserAPI) queryUser(db *sql.DB, userId string) *jsonListUserAPI {
-	querySQL := "SELECT id,user_email,user_right,create_time FROM user_list WHERE id=?"
+	querySQL := "SELECT id,user_email,user_right,create_time FROM users WHERE id=?"
 	rows, err := db.Query(querySQL, userId)
 	if err != nil {
 		global.Logger.Error(err.Error())
@@ -103,7 +107,7 @@ func (o *editUserAPI) queryUser(db *sql.DB, userId string) *jsonListUserAPI {
 		var id int
 		var userEmail string
 		var userRight string
-		var when sql.NullInt64
+		var when time.Time
 
 		err = rows.Scan(&id, &userEmail, &userRight, &when)
 		if err != nil {

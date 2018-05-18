@@ -9,3 +9,4 @@ cd ${GOPATH}
 go get -u github.com/samuel/go-zookeeper/zk
 go get -u github.com/go-sql-driver/mysql
 go get -u gopkg.in/yaml.v2
+go get -u github.com/afocus/captcha

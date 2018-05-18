@@ -61,7 +61,7 @@ function update_page_view(page_idx) {
     // 添加表格
     for (var i = 0; i < window.save_data.item_list.length; i++) {
         var user = window.save_data.item_list[i];
-        add_row(user.id, user.user_email, user.download_right, user.upload_right, user.manager_right, user.create_time);
+        add_row(user.id, user.user_email, user.manager_right, user.create_time);
     }
 
     // 更新分页标签
@@ -108,7 +108,7 @@ function query_delete_selected_user() {
     });
 
     // 发送请求删除后台数据
-    if (content != '') {
+    if (content !== '') {
         $.ajax({
                 url: '/del_user_api',
                 type: "post",
@@ -136,30 +136,18 @@ $(document).on("click", ".user-edit-button", function () {
     var $tr = $(this).parent().parent();
     var user_id = $tr.find("td:eq(1)").text();
     var user_email = $tr.find("td:eq(2)").text();
-    var download_right_txt = $tr.find("td:eq(3)").text();
-    var upload_right_txt = $tr.find("td:eq(4)").text();
-    var manager_right_txt = $tr.find("td:eq(5)").text();
-
-    var download_right = false;
-    if (download_right_txt == '是') {
-        download_right = true;
-    }
-
-    var upload_right = false;
-    if (upload_right_txt == '是') {
-        upload_right = true;
-    }
+    var manager_right_txt = $tr.find("td:eq(3)").text();
 
     var manager_right = false;
-    if (manager_right_txt == '是') {
+    if (manager_right_txt === '是') {
         manager_right = true;
     }
 
-    show_edit_dialog(user_id, user_email, download_right, upload_right, manager_right);
+    show_edit_dialog(user_id, user_email, manager_right);
 });
 
 // 弹出编辑对话框
-function show_edit_dialog(user_id, user_email, download_right, upload_right, manager_right) {
+function show_edit_dialog(user_id, user_email, manager_right) {
     BootstrapDialog.show({
         message: function (dialog) {
             // header
@@ -174,17 +162,6 @@ function show_edit_dialog(user_id, user_email, download_right, upload_right, man
             // 用户权限
             content += '<div class="checkbox">';
             content += '<span style="margin-right: 30px;">用户权限:</span>';
-            if (download_right) {
-                content += '<label style="margin: 0 10px;"><input id="download_right_in_dialog" type="checkbox" name="download_right" value="1" checked/>下载文件</label>';
-            } else {
-                content += '<label style="margin: 0 10px;"><input id="download_right_in_dialog" type="checkbox" name="download_right" value="0"/>下载文件</label>';
-            }
-
-            if (upload_right) {
-                content += '<label style="margin: 0 10px;"><input id="upload_right_in_dialog" type="checkbox" name="upload_right" value="1" checked/>上传文件</label>';
-            } else {
-                content += '<label style="margin: 0 10px;"><input id="upload_right_in_dialog" type="checkbox" name="upload_right" value="0"/>上传文件</label>';
-            }
 
             if (manager_right) {
                 content += '<label style="margin: 0 10px;"><input id="manager_right_in_dialog" type="checkbox" name="manager_right" value="1" checked/>用户管理</label>';
@@ -208,30 +185,19 @@ function show_edit_dialog(user_id, user_email, download_right, upload_right, man
                 // 获取用户添加数据
                 var user_id = $("#edit_user_id").val();
 
-                var new_download_right = false;
-                if ($("#download_right_in_dialog").prop('checked')) {
-                    new_download_right = true;
-                }
-                var new_upload_right = false;
-                if ($("#upload_right_in_dialog").prop('checked')) {
-                    new_upload_right = true;
-                }
-
                 var new_manager_right = false;
                 if ($("#manager_right_in_dialog").prop('checked')) {
                     new_manager_right = true;
                 }
 
                 // 权限发生变化后发送请求
-                if (download_right != new_download_right || upload_right != new_upload_right || manager_right != new_manager_right) {
+                if ( manager_right !== new_manager_right) {
                     // 发送请求
                     $.ajax({
                             url: '/edit_user_api',
                             type: "post",
                             data: {
                                 'user_id': user_id,
-                                'download_right': new_download_right,
-                                'upload_right': new_upload_right,
                                 'manager_right': new_manager_right
                             },
                             dataType: 'json',
@@ -239,7 +205,7 @@ function show_edit_dialog(user_id, user_email, download_right, upload_right, man
                                 edit_user_page_view(response);
                             },
                             error: function (jqXHR, textStatus, errorThrown) {
-                                if (jqXHR.status == 302) {
+                                if (jqXHR.status === 302) {
                                     window.parent.location.replace("/");
                                 } else {
                                     $.showErr("更新失败");
@@ -271,8 +237,6 @@ function edit_user_page_view(response) {
     var user = response.content;
     var user_id = user.id;
     var user_email = user.user_email;
-    var download_right = user.download_right;
-    var upload_right = user.upload_right;
     var manager_right = user.manager_right;
     var create_time = user.create_time;
 
@@ -280,17 +244,7 @@ function edit_user_page_view(response) {
         var $check_box = $(this).find("td:eq(0)").find("input[name='user_list[]']");
         var bind_user_id = $check_box.val();
 
-        if (bind_user_id == user_id) {
-            var download_control = '是';
-            if (!download_right) {
-                download_control = '否';
-            }
-
-            var upload_control = '是';
-            if (!upload_right) {
-                upload_control = '否';
-            }
-
+        if (bind_user_id === user_id.toString()) {
             var user_control = '是';
             if (!manager_right) {
                 user_control = '否';
@@ -298,10 +252,8 @@ function edit_user_page_view(response) {
 
             $(this).find("td:eq(1)").html(user_id);
             $(this).find("td:eq(2)").html(user_email);
-            $(this).find("td:eq(3)").html(download_control);
-            $(this).find("td:eq(4)").html(upload_control);
-            $(this).find("td:eq(5)").html(user_control);
-            $(this).find("td:eq(6)").html(create_time);
+            $(this).find("td:eq(3)").html(user_control);
+            $(this).find("td:eq(4)").html(create_time);
         }
     });
 }
@@ -319,8 +271,6 @@ $("#add_user_button").click(function () {
             // 权限
             content += '<div class="checkbox">';
             content += '<span style="margin-right: 30px;">权限:</span>';
-            content += '<label style="margin: 0 10px;"><input id="download_control_in_dialog" type="checkbox" name="user_right[]" value="1" />下载文件</label>';
-            content += '<label style="margin: 0 10px;"><input id="upload_control_in_dialog" type="checkbox" name="user_right[]" value="0" />上传文件</label>';
             content += '<label style="margin: 0 10px;"><input id="manager_control_in_dialog" type="checkbox" name="user_right[]" value="0" />用户管理</label>';
             content += '</div>';
 
@@ -338,16 +288,6 @@ $("#add_user_button").click(function () {
                 // 获取用户添加数据
                 var user_email = $("#add_user_email").val();
 
-                var download_right = false;
-                if ($("#download_control_in_dialog").prop('checked')) {
-                    download_right = true;
-                }
-
-                var upload_right = false;
-                if ($("#upload_control_in_dialog").prop('checked')) {
-                    upload_right = true;
-                }
-
                 var manager_right = false;
                 if ($("#manager_control_in_dialog").prop('checked')) {
                     manager_right = true;
@@ -359,8 +299,6 @@ $("#add_user_button").click(function () {
                         type: "post",
                         data: {
                             'user_email': user_email,
-                            'download_right': download_right,
-                            'upload_right': upload_right,
                             'manager_right': manager_right
                         },
                         dataType: 'json',
@@ -368,7 +306,7 @@ $("#add_user_button").click(function () {
                             refresh_view(response);
                         },
                         error: function (jqXHR, textStatus, errorThrown) {
-                            if (jqXHR.status == 302) {
+                            if (jqXHR.status === 302) {
                                 window.parent.location.replace("/");
                             } else {
                                 $.showErr("添加失败");
@@ -392,7 +330,7 @@ $("#add_user_button").click(function () {
 
 // 根据ajax返回值更新页面
 function refresh_view(data) {
-    if (data.success == true) {
+    if (data.success === true) {
         window.location.reload();
     } else {
         $.showErr("添加失败");
@@ -400,17 +338,7 @@ function refresh_view(data) {
 }
 
 // 在表格中增加用户
-function add_row(user_id, user_account, download_right, upload_right, manager_right, create_time) {
-    var download_control = '是';
-    if (!download_right) {
-        download_control = '否';
-    }
-
-    var upload_control = '是';
-    if (!upload_right) {
-        upload_control = '否';
-    }
-
+function add_row(user_id, user_account, manager_right, create_time) {
     var user_control = '是';
     if (!manager_right) {
         user_control = '否';
@@ -421,8 +349,6 @@ function add_row(user_id, user_account, download_right, upload_right, manager_ri
         '<td style="text-align:center;"><input name="user_list[]" type="checkbox" value="' + user_id + '"></td>' +
         '<td style="text-align:center;">' + user_id + '</td>' +
         '<td style="text-align:center;">' + user_account + '</td>' +
-        '<td style="text-align:center;">' + download_control + '</td>' +
-        '<td style="text-align:center;">' + upload_control + '</td>' +
         '<td style="text-align:center;">' + user_control + '</td>' +
         '<td style="text-align:center;">' + create_time + '</td>' +
         '<td style="text-align:center;"><button type="button" class="btn btn-primary user-edit-button">编辑</button></td>');

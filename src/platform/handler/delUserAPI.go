@@ -8,6 +8,7 @@ import (
 	"mt/session"
 	"strings"
 	"platform/global"
+	"net/url"
 )
 
 type delUserAPI struct {
@@ -31,14 +32,19 @@ func (o *delUserAPI) handle(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	connectStr := fmt.Sprintf("%s:%s@/%s", global.Conf.MysqlUser, global.Conf.MysqlPwd, global.Conf.MysqlDbName)
+	connectStr := fmt.Sprintf("%s:%s@tcp(%s:%s)/%s?charset=utf8&loc=%s&parseTime=true",
+		global.Conf.MysqlUser,
+		global.Conf.MysqlPwd,
+		global.Conf.MysqlAddress,
+		global.Conf.MysqlPort,
+		global.Conf.MysqlDbName,
+		url.QueryEscape("Asia/Shanghai"))
 	db, err := sql.Open("mysql", connectStr)
 	if err != nil {
 		global.Logger.Error(err.Error())
 		o.render(w, false, "OPEN_DB_FAILED")
 	}
 	defer db.Close()
-	db.Exec("PRAGMA busy_timeout=30000")
 
 	if !o.delUser(db, userIdList) {
 		o.render(w, false, "DEL_USER_FAILED")
@@ -71,7 +77,7 @@ func (o *delUserAPI) delUser(db *sql.DB, userIdList string) bool {
 		sqlPart = sqlPart[0:len(sqlPart) - 1]
 	}
 
-	querySQL := "DELETE FROM user_list WHERE id in (" + sqlPart + ")"
+	querySQL := "DELETE FROM users WHERE id in (" + sqlPart + ")"
 	global.Logger.Info(querySQL)
 	results, err := db.Exec(querySQL)
 	if err != nil {

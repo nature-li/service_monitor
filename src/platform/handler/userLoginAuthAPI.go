@@ -129,7 +129,13 @@ func (o *userLoginAuthAPI) getUserRight(email string) (userRight string, ok bool
 	userRight = ""
 	ok = false
 
-	connectStr := fmt.Sprintf("%s:%s@/%s", global.Conf.MysqlUser, global.Conf.MysqlPwd, global.Conf.MysqlDbName)
+	connectStr := fmt.Sprintf("%s:%s@tcp(%s:%s)/%s?charset=utf8&loc=%s&parseTime=true",
+		global.Conf.MysqlUser,
+		global.Conf.MysqlPwd,
+		global.Conf.MysqlAddress,
+		global.Conf.MysqlPort,
+		global.Conf.MysqlDbName,
+		url.QueryEscape("Asia/Shanghai"))
 	db, err := sql.Open("mysql", connectStr)
 	if err != nil {
 		global.Logger.Error(err.Error())

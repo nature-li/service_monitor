@@ -10,25 +10,17 @@ import (
 	"strconv"
 	"platform/global"
 	"fmt"
+	"net/url"
 )
 
 type jsonListUserAPI struct {
 	Id            int    `json:"id"`
 	UserEmail     string `json:"user_email"`
-	DownloadRight bool   `json:"download_right"`
-	UploadRight   bool   `json:"upload_right"`
 	ManagerRight  bool   `json:"manager_right"`
 	CreateTime    string `json:"create_time"`
 }
 
-func (o *jsonListUserAPI) setCreateTime(createTime sql.NullInt64) {
-	var when time.Time
-	if createTime.Valid {
-		when = time.Unix(createTime.Int64, 0)
-	} else {
-		when = time.Unix(0, 0)
-	}
-
+func (o *jsonListUserAPI) setCreateTime(when time.Time) {
 	o.CreateTime = when.Format("2006-01-02 15:04:05")
 }
 
@@ -52,7 +44,13 @@ func (o *listUserAPI) handle(w http.ResponseWriter, r *http.Request) {
 
 	global.Logger.Info(r.Form.Encode())
 
-	connectStr := fmt.Sprintf("%s:%s@/%s", global.Conf.MysqlUser, global.Conf.MysqlPwd, global.Conf.MysqlDbName)
+	connectStr := fmt.Sprintf("%s:%s@tcp(%s:%s)/%s?charset=utf8&loc=%s&parseTime=true",
+		global.Conf.MysqlUser,
+		global.Conf.MysqlPwd,
+		global.Conf.MysqlAddress,
+		global.Conf.MysqlPort,
+		global.Conf.MysqlDbName,
+		url.QueryEscape("Asia/Shanghai"))
 	db, err := sql.Open("mysql", connectStr)
 	if err != nil {
 		global.Logger.Error(err.Error())
@@ -103,7 +101,7 @@ func (o *listUserAPI) countDB(db *sql.DB, userEmail string) (code int, totalCoun
 		rows, err = db.Query(querySql, "%"+userEmail+"%")
 	} else {
 		global.Logger.Info(querySql)
-		rows, err = db.Query(querySql, userEmail)
+		rows, err = db.Query(querySql)
 	}
 	if err != nil {
 		global.Logger.Error(err.Error())
@@ -122,10 +120,9 @@ func (o *listUserAPI) queryDB(db *sql.DB, userEmail, limit, offset string) (int,
 	var err error
 	var dataSql = "SELECT id,user_email,user_right,create_time FROM users"
 	if len(userEmail) != 0 {
-		dataSql += " WHERE user_email like ? order by create_time desc limit ? offset ?"
-	} else {
-		dataSql += " order by create_time desc limit ? offset ?"
+		dataSql += " WHERE user_email like ?"
 	}
+	dataSql += " order by create_time desc limit ? offset ?"
 
 	var rows *sql.Rows
 	if len(userEmail) != 0 {
@@ -146,7 +143,7 @@ func (o *listUserAPI) queryDB(db *sql.DB, userEmail, limit, offset string) (int,
 		var id int
 		var userEmail sql.NullString
 		var userRight sql.NullString
-		var when sql.NullInt64
+		var when time.Time
 		err = rows.Scan(&id, &userEmail, &userRight, &when)
 		if err != nil {
 			global.Logger.Error(err.Error())
@@ -165,9 +162,9 @@ func (o *listUserAPI) queryDB(db *sql.DB, userEmail, limit, offset string) (int,
 		}
 
 		row := jsonListUserAPI{
-			Id:            id,
-			UserEmail:     userEmail.String,
-			ManagerRight:  managerRight,
+			Id:           id,
+			UserEmail:    userEmail.String,
+			ManagerRight: managerRight,
 		}
 		row.setCreateTime(when)
 		rowList = append(rowList, row)

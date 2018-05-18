@@ -42,11 +42,6 @@
                     </a>
                 </span>
             </li>
-        {{if .DownloadRight}}
-            <li id="file_list_menu" class="side-bar-condition-hidden side-bar-menu" style="clear: both">
-                <a href="#">文件管理</a>
-            </li>
-        {{end}}
         {{if .UserRight}}
             <li id="user_list_menu" class="side-bar-condition-hidden side-bar-menu chosen-menu">
                 <a href="#">用户管理</a>
@@ -109,8 +104,6 @@
                             <th style="text-align:center" width="20"><input id="check_all" type="checkbox" value=""></th>
                             <th style="text-align:center">ID</th>
                             <th style="text-align:center">账号</th>
-                            <th style="text-align:center">下载文件</th>
-                            <th style="text-align:center">上传文件</th>
                             <th style="text-align:center">用户管理</th>
                             <th style="text-align:center">添加日期</th>
                             <th style="text-align:center">操作</th>
