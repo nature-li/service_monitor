@@ -1,57 +1,3 @@
--- 代理地址
-DROP TABLE IF EXISTS `agents`;
-CREATE TABLE IF NOT EXISTS `agents` (
-  `id`          INT          NOT NULL AUTO_INCREMENT,
-  `listen_ip`   VARCHAR(64)  NOT NULL,
-  `listen_port` INT          NOT NULL,
-  `create_time` TIMESTAMP    NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  `desc`        VARCHAR(256) NULL,
-  PRIMARY KEY (`id`)
-) DEFAULT CHARSET = utf8;
-
--- 服务安装信息
-DROP TABLE IF EXISTS `services`;
-CREATE TABLE IF NOT EXISTS `services` (
-  `id`           INT          NOT NULL AUTO_INCREMENT,
-  `service_type` INT          NOT NULL,
-  `ip_address`   VARCHAR(64)  NOT NULL,
-  `domain_name`  VARCHAR(256) NULL,
-  `install_path` VARCHAR(256) NOT NULL,
-  `log_path`     VARCHAR(256) NOT NULL,
-  `run_user`     VARCHAR(64)  NOT NULL,
-  `listen_port`  INT          NULL,
-  `pause_flag`   INT          NOT NULL DEFAULT 0,
-  `zk_address`   VARCHAR(256) NULL,
-  `zk_node`      VARCHAR(256) NULL,
-  `create_time`  TIMESTAMP    NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  `desc`         VARCHAR(256) NULL,
-  PRIMARY KEY (`id`)
-) DEFAULT CHARSET = utf8;
-
--- 服务类型
-DROP TABLE IF EXISTS `service_type`;
-CREATE TABLE IF NOT EXISTS `service_type` (
-  `id`           INT           NOT NULL AUTO_INCREMENT,
-  `service_type` INT           NOT NULL UNIQUE,
-  `service_name` VARCHAR(64)   NOT NULL,
-  `start_cmd`    VARCHAR(1024) NOT NULL,
-  `stop_cmd`     VARCHAR(1024) NOT NULL,
-  `restart_cmd`  VARCHAR(1024) NULL,
-  `create_time`  TIMESTAMP     NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  `desc`         VARCHAR(256)  NULL,
-  PRIMARY KEY (`id`)
-) DEFAULT CHARSET = utf8;
-
--- 服务依赖关系
-DROP TABLE IF EXISTS `service_rely`;
-CREATE TABLE IF NOT EXISTS `service_rely` (
-  `id`          INT          NOT NULL AUTO_INCREMENT,
-  `rely_id`     INT          NULL,
-  `create_time` TIMESTAMP    NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  `desc`        VARCHAR(256) NULL,
-  PRIMARY KEY (`id`)
-) DEFAULT CHARSET = utf8;
-
 -- 用户账号
 DROP TABLE IF EXISTS `users`;
 CREATE TABLE IF NOT EXISTS `users` (
@@ -67,3 +13,42 @@ CREATE TABLE IF NOT EXISTS `users` (
 ) DEFAULT CHARSET = utf8;
 INSERT INTO users (user_name, user_email, user_pwd, user_right, user_type)
 VALUES ('李艳国', 'lyg@meitu.com', 'e10adc3949ba59abbe56e057f20f883e', 1, 1);
+
+-- 服务列表
+DROP TABLE IF EXISTS `services`;
+CREATE TABLE IF NOT EXISTS `services` (
+  `id`           INT           NOT NULL AUTO_INCREMENT,
+  `service_name` VARCHAR(256)  NOT NULL,
+  `ssh_user`     VARCHAR(256)  NOT NULL,
+  `ssh_ip`       VARCHAR(64)   NOT NULL,
+  `start_cmd`    VARCHAR(1024) NOT NULL,
+  `stop_cmd`     VARCHAR(1024) NOT NULL,
+  `activate`     INT           NOT NULL DEFAULT 0,
+  `auto_recover` INT           NOT NULL DEFAULT 1,
+  `create_time`  TIMESTAMP     NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `desc`         VARCHAR(256)  NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `service_name` (`service_name`)
+) DEFAULT CHARSET = utf8;
+
+-- 命令列表
+DROP TABLE IF EXISTS `check_cmd`;
+CREATE TABLE IF NOT EXISTS `check_cmd` (
+  `id`              INT           NOT NULL AUTO_INCREMENT,
+  `service_id`      INT           NOT NULL,
+  `local_check`     INT           NOT NULL DEFAULT 0,
+  `check_shell`     VARCHAR(1024) NOT NULL,
+  `check_value`     VARCHAR(64)   NOT NULL,
+  `health_if_match` INT           NOT NULL DEFAULT 0,
+  PRIMARY KEY (`id`)
+) DEFAULT CHARSET = utf8;
+
+-- 依赖关系
+DROP TABLE IF EXISTS `service_rely`;
+CREATE TABLE IF NOT EXISTS `service_rely` (
+  `id`          INT          NOT NULL AUTO_INCREMENT,
+  `service_id`  INT          NULL,
+  `create_time` TIMESTAMP    NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `desc`        VARCHAR(256) NULL,
+  PRIMARY KEY (`id`)
+) DEFAULT CHARSET = utf8;

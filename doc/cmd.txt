@@ -1,0 +1,28 @@
+# 指定机器远程执行任意shell命令
+adm remote -host=10.x.x.x -c="ps aux | grep index_server"
+adm remote -host=10.x.x.x -c="kill -p $PID"
+adm remote -host=10.x.x.x -c="/www/generator/bin/service.sh restart"
+
+
+
+# 列出所有应用程序列表，列表中显示健康状况
+adm app -list -a
+adm app -list -type=index_server
+adm app -list -type=index_server -host=10.x.x.x
+
+# 启动、关闭、重启、查看状态指定类型的所有程序
+adm app -start 		-type=index_server -a
+adm app -stop   	-type=index_server -a
+adm app -restart 	-type=index_server -a
+adm app -status 	-type=index_server -a
+
+# 启动、关闭、重启、查看状态指定类型和IP的程序
+adm app -start 		-type=index_server -host=10.x.x.x
+adm app -stop   	-type=index_server -host=10.x.x.x
+adm app -restart 	-type=index_server -host=10.x.x.x
+adm app -status 	-type=index_server -host=10.x.x.x
+
+
+# 列出指定APP类型近100行日志
+adm log -type=index_server -line=100
+adm log -type=index_server -line=100 -host=10.x.x.x

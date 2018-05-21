@@ -14,3 +14,6 @@ go install agent
 
 go build -ldflags "-X mt/mtlog.CodeRoot=${GOPATH}" platform
 go install platform
+
+go build -ldflags "-X mt/mtlog.CodeRoot=${GOPATH}" learn
+go install learn
