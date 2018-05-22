@@ -13,6 +13,8 @@ type Conf struct {
 	LogFileSize    int64  `yaml:"log_file_size"`
 	LogFileCount   int    `yaml:"log_file_count"`
 	HttpListenPort string `yaml:"http_listen_port"`
+	KeyFile        string `yaml:"key_file"`
+	KeyPwd         string `yaml:"key_pwd"`
 }
 
 func (o *Conf) GetConf(path string) *Conf {

@@ -7,14 +7,11 @@ import (
 	"monitor/global"
 	"net/http"
 	"monitor/config"
-	"net/rpc"
-	"net"
 	"monitor/service"
 	"monitor/logical"
 )
 
-
-func main()  {
+func main() {
 	// parse config
 	var confPath = flag.String("conf", "", "config file path")
 	flag.Parse()
@@ -48,15 +45,9 @@ func main()  {
 	jobs.Start()
 	defer jobs.Stop()
 
-	// register function
-	//rpc.Register(nil)
-	rpc.HandleHTTP()
-	listener, err := net.Listen("tcp", global.Conf.HttpListenPort)
+	// http.HandleFunc("/TODO", TODO)
+	err = http.ListenAndServe(global.Conf.HttpListenPort, nil)
 	if err != nil {
 		global.Logger.Error(err.Error())
-		return
 	}
-
-	global.Logger.Info("monitor server is starting...")
-	http.Serve(listener, nil)
 }

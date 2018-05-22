@@ -9,3 +9,5 @@ mysql_port: 3306
 mysql_user: datasys
 mysql_pwd: datasys
 mysql_db_name: monitor
+key_file:
+key_pwd:

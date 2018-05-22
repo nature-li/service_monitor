@@ -107,6 +107,7 @@ func main() {
 	if err != nil {
 		panic("Failed to dial: " + err.Error())
 	}
+	defer client.Close()
 
 	// Each ClientConn can support multiple interactive sessions,
 	// represented by a Session.
