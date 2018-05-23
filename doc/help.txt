@@ -1,0 +1,4 @@
+本地生成公私钥
+ssh-keygen -t rsa
+
+
