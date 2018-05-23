@@ -1,4 +1,4 @@
-package logical
+package job
 
 import (
 	"strings"
@@ -12,23 +12,72 @@ import (
 )
 
 type Job struct {
-	id           int
+	id           int32
 	serviceName  string
 	sshUser      string
 	sshIP        string
 	sshPort      string
 	startCmd     string
 	stopCmd      string
-	activate     bool
 	autoRecover  bool
 	mailReceiver string
 
-	rely   []int
+	rely   []int32
 	local  []*CheckCmd
 	remote []*CheckCmd
 }
 
-func (o *Job) checkAll() (healthy bool, err error) {
+func NewJob(id int32, serviceName, sshUser, sshIP, sshPort, startCmd, stopCmd string, autoRecover int, mailReceiver string) *Job {
+	return &Job{
+		id:           id,
+		serviceName:  serviceName,
+		sshUser:      sshUser,
+		sshIP:        sshIP,
+		sshPort:      sshPort,
+		startCmd:     startCmd,
+		stopCmd:      stopCmd,
+		autoRecover:  autoRecover == 1,
+		mailReceiver: mailReceiver,
+		rely:         make([]int32, 0),
+		local:        make([]*CheckCmd, 0),
+		remote:       make([]*CheckCmd, 0),
+	}
+}
+
+func (o *Job) Id() int32 {
+	return o.id
+}
+
+func (o *Job) ServiceName() string {
+	return o.serviceName
+}
+
+func (o *Job) IsAutoRecover() bool {
+	return o.autoRecover
+}
+
+func (o *Job) MailReceiver() string {
+	return o.mailReceiver
+}
+
+func (o *Job) Rely() []int32 {
+	return o.rely
+}
+
+func (o *Job) AddRely(relyId int32) {
+	o.rely = append(o.rely, relyId)
+}
+
+func (o *Job) AddLocalCmd(cmd *CheckCmd) {
+	o.local = append(o.local, cmd)
+}
+
+func (o *Job) AddRemoteCmd(cmd *CheckCmd) {
+	o.local = append(o.remote, cmd)
+}
+
+
+func (o *Job) CheckAll() (healthy bool, err error) {
 	// local check
 	for _, policy := range o.local {
 		healthy, err = o.localCheck(policy)
@@ -232,7 +281,7 @@ func (o *Job) start() (err error) {
 	return
 }
 
-func (o *Job) restart() (err error) {
+func (o *Job) Restart() (err error) {
 	config := global.GetSSHConfig(o.sshUser)
 	if config == nil {
 		err = errors.New("get ssh config error")

@@ -61,8 +61,10 @@ INSERT INTO `operators` (operator) VALUES ('>'), ('>='), ('<'), ('<='), ('='), (
 DROP TABLE IF EXISTS `service_rely`;
 CREATE TABLE IF NOT EXISTS `service_rely` (
   `id`          INT          NOT NULL AUTO_INCREMENT,
-  `service_id`  INT          NULL,
+  `service_id`  INT          NOT NULL,
+  `rely_id`     INT          NOT NULL,
   `create_time` TIMESTAMP    NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `desc`        VARCHAR(256) NULL,
-  PRIMARY KEY (`id`)
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `rely` (`service_id`, `rely_id`)
 ) DEFAULT CHARSET = utf8;

@@ -7,8 +7,8 @@ import (
 	"monitor/global"
 	"net/http"
 	"monitor/config"
-	"monitor/service"
-	"monitor/logical"
+	"monitor/task"
+	"monitor/handler"
 )
 
 func main() {
@@ -34,19 +34,15 @@ func main() {
 	}
 	defer global.Logger.Stop()
 
-	// run logic
-	tasks, err := service.LoadServices()
-	if err != nil {
-		global.Logger.Error("load services failed")
-		return
-	}
-	jobs := logical.NewLogical()
-	jobs.SetServiceDict(tasks)
-	jobs.Start()
-	defer jobs.Stop()
+	// run logic task
+	m := task.NewMonitor()
+	m.Start()
+	defer m.Stop()
 
-	// http.HandleFunc("/TODO", TODO)
-	err = http.ListenAndServe(global.Conf.HttpListenPort, nil)
+	// http listening
+	global.Logger.Infof("monitor is listening...")
+	http.HandleFunc("/", handler.MainHandler)
+	err := http.ListenAndServe(global.Conf.HttpListenPort, nil)
 	if err != nil {
 		global.Logger.Error(err.Error())
 	}
