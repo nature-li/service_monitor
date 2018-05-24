@@ -93,7 +93,7 @@ func (o *Monitor) loadJobFromDB() (map[int32]*job.Job, error) {
 }
 
 func (o *Monitor) queryService(db *sql.DB) (map[int32]*job.Job, error) {
-	querySql := "SELECT id,service_name,ssh_user,ssh_ip,ssh_port,start_cmd,stop_cmd,auto_recover,mail_receiver " +
+	querySql := "SELECT id,service_name,ssh_user,ssh_ip,ssh_port,start_cmd,exist_cmd,stop_cmd,auto_recover,mail_receiver " +
 		"FROM services WHERE activate = 1"
 	rows, err := db.Query(querySql)
 	if err != nil {
@@ -110,16 +110,17 @@ func (o *Monitor) queryService(db *sql.DB) (map[int32]*job.Job, error) {
 		var sshIP string
 		var sshPort string
 		var startCmd string
+		var existCmd string
 		var stopCmd string
 		var autoRecover int
 		var mailReceiver string
-		err = rows.Scan(&id, &serviceName, &sshUser, &sshIP, &sshPort, &startCmd, &stopCmd, &autoRecover, &mailReceiver)
+		err = rows.Scan(&id, &serviceName, &sshUser, &sshIP, &sshPort, &startCmd, &existCmd, &stopCmd, &autoRecover, &mailReceiver)
 		if err != nil {
 			global.Logger.Error(err.Error())
 			return nil, err
 		}
 
-		aJob := job.NewJob(id, serviceName, sshUser, sshIP, sshPort, startCmd, stopCmd, autoRecover, mailReceiver)
+		aJob := job.NewJob(id, serviceName, sshUser, sshIP, sshPort, startCmd, existCmd, stopCmd, autoRecover, mailReceiver)
 		serviceDict[aJob.Id()] = aJob
 	}
 

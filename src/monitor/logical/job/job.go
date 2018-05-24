@@ -18,6 +18,7 @@ type Job struct {
 	sshIP        string
 	sshPort      string
 	startCmd     string
+	existCmd     string
 	stopCmd      string
 	autoRecover  bool
 	mailReceiver string
@@ -27,7 +28,7 @@ type Job struct {
 	remote []*CheckCmd
 }
 
-func NewJob(id int32, serviceName, sshUser, sshIP, sshPort, startCmd, stopCmd string, autoRecover int, mailReceiver string) *Job {
+func NewJob(id int32, serviceName, sshUser, sshIP, sshPort, startCmd, existCmd, stopCmd string, autoRecover int, mailReceiver string) *Job {
 	return &Job{
 		id:           id,
 		serviceName:  serviceName,
@@ -35,6 +36,7 @@ func NewJob(id int32, serviceName, sshUser, sshIP, sshPort, startCmd, stopCmd st
 		sshIP:        sshIP,
 		sshPort:      sshPort,
 		startCmd:     startCmd,
+		existCmd:     existCmd,
 		stopCmd:      stopCmd,
 		autoRecover:  autoRecover == 1,
 		mailReceiver: mailReceiver,
@@ -75,7 +77,6 @@ func (o *Job) AddLocalCmd(cmd *CheckCmd) {
 func (o *Job) AddRemoteCmd(cmd *CheckCmd) {
 	o.local = append(o.remote, cmd)
 }
-
 
 func (o *Job) CheckAll() (healthy bool, err error) {
 	// local check
@@ -245,6 +246,17 @@ func (o *Job) stop() (err error) {
 
 	var out bytes.Buffer
 	session.Stdout = &out
+	if err = session.Run(o.existCmd); err != nil {
+		global.Logger.Infof("%s: input=[%s], output=[...]", remoteHost, o.existCmd)
+		global.Logger.Error(err.Error())
+		return
+	}
+	global.Logger.Infof("%s: input=[%s], output=[%s]", remoteHost, o.existCmd, out.String())
+	if out.Len() == 0 {
+		return
+	}
+
+	out.Reset()
 	if err = session.Run(o.stopCmd); err != nil {
 		global.Logger.Infof("%s: input=[%s], output=[...]", remoteHost, o.stopCmd)
 		global.Logger.Error(err.Error())
@@ -317,12 +329,33 @@ func (o *Job) Restart() (err error) {
 
 	var out bytes.Buffer
 	session.Stdout = &out
-	if err = session.Run(o.stopCmd); err != nil {
-		global.Logger.Infof("%s: input=[%s], output=[...]", remoteHost, o.stopCmd)
+	if err = session.Run(o.existCmd); err != nil {
+		global.Logger.Infof("%s: input=[%s], output=[...]", remoteHost, o.existCmd)
 		global.Logger.Error(err.Error())
 		return
 	}
-	global.Logger.Infof("%s: input=[%s], output=[%s]", remoteHost, o.stopCmd, out.String())
+	global.Logger.Infof("%s: input=[%s], output=[%s]", remoteHost, o.existCmd, out.String())
+
+	if out.Len() != 0 {
+		out.Reset()
+		if err = session.Run(o.stopCmd); err != nil {
+			global.Logger.Infof("%s: input=[%s], output=[...]", remoteHost, o.stopCmd)
+			global.Logger.Error(err.Error())
+		}
+		global.Logger.Infof("%s: input=[%s], output=[%s]", remoteHost, o.stopCmd, out.String())
+	}
+
+	out.Reset()
+	if err = session.Run(o.existCmd); err != nil {
+		global.Logger.Infof("%s: input=[%s], output=[...]", remoteHost, o.existCmd)
+		global.Logger.Error(err.Error())
+		return
+	}
+	global.Logger.Infof("%s: input=[%s], output=[%s]", remoteHost, o.existCmd, out.String())
+	if out.Len() > 0 {
+		global.Logger.Error("stop failed, it's still running....")
+		return
+	}
 
 	out.Reset()
 	if err = session.Run(o.startCmd); err != nil {
