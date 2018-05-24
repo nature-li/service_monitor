@@ -10,7 +10,7 @@ import (
 	"sync/atomic"
 	"time"
 	"monitor/logical"
-	_ "github.com/go-sql-driver/mysql"
+	_ "go-mysql-driver/mysql"
 )
 
 type Monitor struct {

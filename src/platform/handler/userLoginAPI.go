@@ -10,7 +10,7 @@ import (
 	_ "mt/session/cookie"
 	"mt/session"
 	"platform/global"
-	_ "github.com/go-sql-driver/mysql"
+	_ "go-mysql-driver/mysql"
 	"fmt"
 	"net/url"
 )
