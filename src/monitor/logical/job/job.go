@@ -139,7 +139,7 @@ func (o *Job) localCheck(check *CheckCmd) (healthy bool, err error) {
 	out, err = cmd.Output()
 	if err != nil {
 		global.Logger.Infof("localhost: input=[%s], output=nil", check.checkShell)
-		global.Logger.Error(err.Error())
+		global.Logger.Errorf("localhost: " + err.Error())
 		return
 	}
 	global.Logger.Infof("localhost: input=[%s], output=[%s]", check.checkShell, string(out))
@@ -153,7 +153,7 @@ func (o *Job) remoteCheck(remoteHost string, session *ssh.Session, check *CheckC
 	session.Stdout = &out
 	if err = session.Run(check.checkShell); err != nil {
 		global.Logger.Infof("%s: input=[%s], output=nil", remoteHost, check.checkShell)
-		global.Logger.Error(err.Error())
+		global.Logger.Errorf(remoteHost + ": " + err.Error())
 		return
 	}
 	global.Logger.Infof("%s: input=[%s], output=[%s]", remoteHost, check.checkShell, out.String())
@@ -252,7 +252,7 @@ func (o *Job) stop() (err error) {
 	session.Stdout = &out
 	if err = session.Run(o.existCmd); err != nil {
 		global.Logger.Infof("%s: input=[%s], output=nil", remoteHost, o.existCmd)
-		global.Logger.Error(err.Error())
+		global.Logger.Errorf(remoteHost + ": " + err.Error())
 		return
 	}
 	global.Logger.Infof("%s: input=[%s], output=[%s]", remoteHost, o.existCmd, out.String())
@@ -263,7 +263,7 @@ func (o *Job) stop() (err error) {
 	out.Reset()
 	if err = session.Run(o.stopCmd); err != nil {
 		global.Logger.Infof("%s: input=[%s], output=nil", remoteHost, o.stopCmd)
-		global.Logger.Error(err.Error())
+		global.Logger.Errorf(remoteHost + ": " + err.Error())
 		return
 	}
 	global.Logger.Infof("%s: input=[%s], output=[%s]", remoteHost, o.stopCmd, out.String())
@@ -299,7 +299,7 @@ func (o *Job) start() (err error) {
 	session.Stdout = &out
 	if err = session.Run(o.startCmd); err != nil {
 		global.Logger.Infof("%s: input=[%s]", remoteHost, o.startCmd)
-		global.Logger.Error(err.Error())
+		global.Logger.Errorf(remoteHost + ": " + err.Error())
 		return
 	}
 	global.Logger.Infof("%s: input=[%s], output=[%s]", remoteHost, o.startCmd, out.String())
@@ -335,7 +335,7 @@ func (o *Job) Restart() (err error) {
 	session.Stdout = &out
 	if err = session.Run(o.existCmd); err != nil {
 		global.Logger.Infof("%s: input=[%s], output=nil", remoteHost, o.existCmd)
-		global.Logger.Error(err.Error())
+		global.Logger.Errorf(remoteHost + ": " + err.Error())
 		return
 	}
 	global.Logger.Infof("%s: input=[%s], output=[%s]", remoteHost, o.existCmd, out.String())
@@ -344,7 +344,7 @@ func (o *Job) Restart() (err error) {
 		out.Reset()
 		if err = session.Run(o.stopCmd); err != nil {
 			global.Logger.Infof("%s: input=[%s], output=nil", remoteHost, o.stopCmd)
-			global.Logger.Error(err.Error())
+			global.Logger.Errorf(remoteHost + ": " + err.Error())
 		}
 		global.Logger.Infof("%s: input=[%s], output=[%s]", remoteHost, o.stopCmd, out.String())
 	}
@@ -352,7 +352,7 @@ func (o *Job) Restart() (err error) {
 	out.Reset()
 	if err = session.Run(o.existCmd); err != nil {
 		global.Logger.Infof("%s: input=[%s], output=nil", remoteHost, o.existCmd)
-		global.Logger.Error(err.Error())
+		global.Logger.Errorf(remoteHost + ": " + err.Error())
 		return
 	}
 	global.Logger.Infof("%s: input=[%s], output=[%s]", remoteHost, o.existCmd, out.String())
@@ -364,7 +364,7 @@ func (o *Job) Restart() (err error) {
 	out.Reset()
 	if err = session.Run(o.startCmd); err != nil {
 		global.Logger.Infof("%s: input=[%s], output=nil", remoteHost, o.startCmd)
-		global.Logger.Error(err.Error())
+		global.Logger.Errorf(remoteHost + ": " + err.Error())
 		return
 	}
 	global.Logger.Infof("%s: input=[%s], output=[%s]", remoteHost, o.startCmd, out.String())
