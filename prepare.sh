@@ -7,7 +7,6 @@ mkdir -p $GOPATH/src/golang.org/x && cd $GOPATH/src/golang.org/x && git clone ht
 
 cd ${GOPATH}
 go get -u github.com/samuel/go-zookeeper/zk
-go get -u github.com/go-sql-driver/mysql
 go get -u -insecure gopkg.in/yaml.v2
 go get -u github.com/afocus/captcha
 
