@@ -251,7 +251,7 @@ func (o *Job) stop() (err error) {
 	var out bytes.Buffer
 	session.Stdout = &out
 	if err = session.Run(o.existCmd); err != nil {
-		global.Logger.Infof("%s: input=[%s], output=[...]", remoteHost, o.existCmd)
+		global.Logger.Infof("%s: input=[%s], output=nil", remoteHost, o.existCmd)
 		global.Logger.Error(err.Error())
 		return
 	}
@@ -262,7 +262,7 @@ func (o *Job) stop() (err error) {
 
 	out.Reset()
 	if err = session.Run(o.stopCmd); err != nil {
-		global.Logger.Infof("%s: input=[%s], output=[...]", remoteHost, o.stopCmd)
+		global.Logger.Infof("%s: input=[%s], output=nil", remoteHost, o.stopCmd)
 		global.Logger.Error(err.Error())
 		return
 	}
@@ -334,7 +334,7 @@ func (o *Job) Restart() (err error) {
 	var out bytes.Buffer
 	session.Stdout = &out
 	if err = session.Run(o.existCmd); err != nil {
-		global.Logger.Infof("%s: input=[%s], output=[...]", remoteHost, o.existCmd)
+		global.Logger.Infof("%s: input=[%s], output=nil", remoteHost, o.existCmd)
 		global.Logger.Error(err.Error())
 		return
 	}
@@ -343,7 +343,7 @@ func (o *Job) Restart() (err error) {
 	if out.Len() != 0 {
 		out.Reset()
 		if err = session.Run(o.stopCmd); err != nil {
-			global.Logger.Infof("%s: input=[%s], output=[...]", remoteHost, o.stopCmd)
+			global.Logger.Infof("%s: input=[%s], output=nil", remoteHost, o.stopCmd)
 			global.Logger.Error(err.Error())
 		}
 		global.Logger.Infof("%s: input=[%s], output=[%s]", remoteHost, o.stopCmd, out.String())
@@ -351,7 +351,7 @@ func (o *Job) Restart() (err error) {
 
 	out.Reset()
 	if err = session.Run(o.existCmd); err != nil {
-		global.Logger.Infof("%s: input=[%s], output=[...]", remoteHost, o.existCmd)
+		global.Logger.Infof("%s: input=[%s], output=nil", remoteHost, o.existCmd)
 		global.Logger.Error(err.Error())
 		return
 	}
@@ -363,7 +363,7 @@ func (o *Job) Restart() (err error) {
 
 	out.Reset()
 	if err = session.Run(o.startCmd); err != nil {
-		global.Logger.Infof("%s: input=[%s], output=[...]", remoteHost, o.startCmd)
+		global.Logger.Infof("%s: input=[%s], output=nil", remoteHost, o.startCmd)
 		global.Logger.Error(err.Error())
 		return
 	}
