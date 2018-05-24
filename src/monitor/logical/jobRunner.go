@@ -116,7 +116,7 @@ func (o *JobRunner) doJob(job *job.Job) {
 
 	err = job.Restart()
 	if err != nil {
-		content := job.ServiceName() + ":" + err.Error()
+		content := job.ServiceName() + ": " + err.Error()
 		global.Logger.Error(content)
 		global.SendMail(job.MailReceiver(), global.AD_TECH_MONITOR, content)
 	}
