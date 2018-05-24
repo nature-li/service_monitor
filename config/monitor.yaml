@@ -12,3 +12,4 @@ mysql_db_name: monitor
 key_file:
 key_pwd:
 monitor_interval: 1
+send_mail: 0
