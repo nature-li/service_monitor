@@ -17,18 +17,18 @@ VALUES ('李艳国', 'lyg@meitu.com', 'e10adc3949ba59abbe56e057f20f883e', 1, 1);
 -- 服务列表
 DROP TABLE IF EXISTS `services`;
 CREATE TABLE IF NOT EXISTS `services` (
-  `id`           INT           NOT NULL AUTO_INCREMENT,
-  `service_name` VARCHAR(256)  NOT NULL,
-  `ssh_user`     VARCHAR(256)  NOT NULL,
-  `ssh_ip`       VARCHAR(64)   NOT NULL,
-  `ssh_port`     VARCHAR(64)   NOT NULL,
-  `start_cmd`    VARCHAR(1024) NOT NULL,
-  `stop_cmd`     VARCHAR(1024) NOT NULL,
-  `activate`     INT           NOT NULL DEFAULT 0,
-  `auto_recover` INT           NOT NULL DEFAULT 1,
-  `mail_reciver` VARCHAR(1024) NOT NULL DEFAULT 'adtech@meitu.com',
-  `create_time`  TIMESTAMP     NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  `desc`         VARCHAR(256)  NULL,
+  `id`            INT           NOT NULL AUTO_INCREMENT,
+  `service_name`  VARCHAR(256)  NOT NULL,
+  `ssh_user`      VARCHAR(256)  NOT NULL,
+  `ssh_ip`        VARCHAR(64)   NOT NULL,
+  `ssh_port`      VARCHAR(64)   NOT NULL,
+  `start_cmd`     VARCHAR(1024) NOT NULL,
+  `stop_cmd`      VARCHAR(1024) NOT NULL,
+  `activate`      INT           NOT NULL DEFAULT 0,
+  `auto_recover`  INT           NOT NULL DEFAULT 1,
+  `mail_receiver` VARCHAR(1024) NOT NULL DEFAULT 'adtech@meitu.com',
+  `create_time`   TIMESTAMP     NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `desc`          VARCHAR(256)  NULL,
   PRIMARY KEY (`id`),
   UNIQUE KEY `service_name` (`service_name`)
 ) DEFAULT CHARSET = utf8;

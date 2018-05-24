@@ -29,6 +29,7 @@ func NewMonitor() *Monitor {
 
 func (o *Monitor) Start() {
 	o.wg.Add(1)
+	go o.run()
 }
 
 func (o *Monitor) Stop() {
