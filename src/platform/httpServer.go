@@ -9,6 +9,7 @@ import (
 	"platform/global"
 	"platform/handler"
 	"platform/config"
+	_ "github.com/go-mysql-driver/mysql"
 )
 
 func main() {

@@ -5,7 +5,6 @@ import (
 	"encoding/json"
 	"database/sql"
 	"mt/session"
-	_ "go-mysql-driver/mysql"
 	"time"
 	"strconv"
 	"platform/global"

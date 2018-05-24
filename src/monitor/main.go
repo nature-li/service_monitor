@@ -9,6 +9,7 @@ import (
 	"monitor/config"
 	"monitor/task"
 	"monitor/handler"
+	_ "github.com/go-mysql-driver/mysql"
 )
 
 func main() {
