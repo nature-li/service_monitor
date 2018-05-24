@@ -100,7 +100,8 @@ func (o *Job) CheckAll() (healthy bool, err error) {
 
 	// build connection
 	var client *ssh.Client
-	client, err = ssh.Dial("tcp", fmt.Sprintf("%s:%s", o.sshIP, o.sshPort), config)
+	remoteHost := fmt.Sprintf("%s:%s", o.sshIP, o.sshPort)
+	client, err = ssh.Dial("tcp", remoteHost, config)
 	if err != nil {
 		return
 	}
