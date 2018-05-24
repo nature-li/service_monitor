@@ -118,7 +118,7 @@ func (o *Job) CheckAll() (healthy bool, err error) {
 
 	// remote check
 	for _, policy := range o.remote {
-		healthy, err = o.remoteCheck(session, policy)
+		healthy, err = o.remoteCheck(remoteHost, session, policy)
 		if err != nil {
 			global.Logger.Error(err.Error())
 			global.SendMail(o.mailReceiver, global.AD_TECH_MONITOR, err.Error())
@@ -138,21 +138,25 @@ func (o *Job) localCheck(check *CheckCmd) (healthy bool, err error) {
 	var out []byte
 	out, err = cmd.Output()
 	if err != nil {
+		global.Logger.Infof("localhost: input=[%s], output=nil", check.checkShell)
 		global.Logger.Error(err.Error())
 		return
 	}
+	global.Logger.Infof("localhost: input=[%s], output=[%s]", check.checkShell, string(out))
 
 	healthy, err = o.isHealthy(string(out), check.operator, check.checkValue, check.goodMatch)
 	return
 }
 
-func (o *Job) remoteCheck(session *ssh.Session, check *CheckCmd) (healthy bool, err error) {
+func (o *Job) remoteCheck(remoteHost string, session *ssh.Session, check *CheckCmd) (healthy bool, err error) {
 	var out bytes.Buffer
 	session.Stdout = &out
 	if err = session.Run(check.checkShell); err != nil {
+		global.Logger.Infof("%s: input=[%s], output=nil", remoteHost, check.checkShell)
 		global.Logger.Error(err.Error())
 		return
 	}
+	global.Logger.Infof("%s: input=[%s], output=[%s]", remoteHost, check.checkShell, out.String())
 
 	healthy, err = o.isHealthy(out.String(), check.operator, check.checkValue, check.goodMatch)
 	return
