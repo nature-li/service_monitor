@@ -21,6 +21,7 @@ type Conf struct {
 	MysqlPort       string `yaml:"mysql_port"`
 	MysqlDbName     string `yaml:"mysql_db_name"`
 	MonitorInterval int    `yaml:"monitor_interval"`
+	SendMail        int    `yaml:"send_mail"`
 }
 
 func (o *Conf) GetConf(path string) *Conf {
@@ -54,4 +55,5 @@ func (o *Conf) Show() {
 	fmt.Println("mysql_port:", o.MysqlPort)
 	fmt.Println("mysql_db_name:", o.MysqlDbName)
 	fmt.Println("monitor_interval:", o.MonitorInterval)
+	fmt.Println("send_mail:", o.SendMail)
 }

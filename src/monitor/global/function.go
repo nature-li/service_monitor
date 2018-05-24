@@ -9,11 +9,17 @@ import (
 	"net"
 	"errors"
 	"encoding/pem"
+	"agent/global"
 )
 
 func SendMail(receivers string, subject, content string) bool {
 	if len(receivers) == 0 {
 		return false
+	}
+
+	if Conf.SendMail == 0 {
+		Logger.Infof("receivers=[%s], subject=[%s], content=[%s]", receivers, subject, content)
+		return true
 	}
 
 	formValue := url.Values{
