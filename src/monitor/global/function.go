@@ -9,7 +9,6 @@ import (
 	"net"
 	"errors"
 	"encoding/pem"
-	"agent/global"
 )
 
 func SendMail(receivers string, subject, content string) bool {
